@@ -102,7 +102,6 @@ docker-compose up -d
 
 Si vous avez chargé les données de démonstration, vous pouvez utiliser les comptes suivants :
 
-- **Admin** : admin / admin123
 - **Parent** : parent / parent123
 - **Enseignant** : teacher / teacher123
 - **Enfant** : child / child123
