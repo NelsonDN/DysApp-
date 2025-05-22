@@ -17,8 +17,8 @@ Une application web Django conçue pour aider les enfants atteints de dyslexie e
 
 ![Tableau de bord](static/img/screenshots/dashboard.png)
 ![Exercice de dyslexie](static/img/screenshots/dyslexia_exercise.png)
-![Exercice de dyscalculie](static/img/screenshots/dyscalculia_exercise.png)
-![Rapport de progression](static/img/screenshots/progress_report.png)
+![Dash](static/img/screenshots/dyscalculia_exercise.png)
+![Dash](static/img/screenshots/progress_report.png)
 
 ## Technologies utilisées
 
