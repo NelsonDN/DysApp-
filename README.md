@@ -79,15 +79,15 @@ python manage.py runserver
 1. Assurez-vous que Docker et Docker Compose sont installés
 2. Clonez le dépôt :
 \`\`\`bash
-git clone https://github.com/votre-organisation/dyslexia-dyscalculia-app.git
+git clone https://github.com/NelsonDN/DysApp-.git
 cd dyslexia-dyscalculia-app
 \`\`\`
 
 3. Configurez les variables d'environnement :
-\`\`\`bash
+bash
 cp .env.example .env
 # Modifiez le fichier .env avec vos propres paramètres
-\`\`\`
+
 
 4. Construisez et lancez les conteneurs :
 \`\`\`bash
@@ -147,18 +147,18 @@ Les contributions sont les bienvenues ! Veuillez consulter le fichier `CONTRIBUT
 
 ## Licence
 
-Ce projet est sous licence [MIT](LICENSE).
+Ce projet est sous licence [OpenSource](LICENSE).
 
 ## Contact
 
-Pour toute question ou suggestion, veuillez contacter l'équipe de développement à l'adresse support@dyslexia-app.com ou ouvrir une issue sur GitHub.
+Pour toute question ou suggestion, veuillez contacter l'équipe de développement ou ouvrir une issue sur GitHub.
 
 ## Remerciements
 
 - Tous les contributeurs du projet
 - Les orthophonistes et spécialistes qui ont aidé à concevoir les exercices
-- Les familles et enseignants qui ont participé aux tests
-\`\`\`
+- Les familles, étudiants et enseignants qui ont participé aux tests
+
 
 ## 15. Exemples de templates HTML
 
