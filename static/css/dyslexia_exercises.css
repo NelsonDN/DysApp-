@@ -1,0 +1,180 @@
+/**
+ * Styles spécifiques pour les exercices de dyslexie
+ */
+
+/* Affichage des lettres */
+.letter-display {
+  font-size: 5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+  line-height: 1.2;
+}
+
+/* Affichage des mots */
+.word-display {
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+  line-height: 1.2;
+}
+
+/* Affichage des phrases */
+.sentence-display {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+/* Mot manquant dans une phrase */
+.missing-word {
+  display: inline-block;
+  min-width: 100px;
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Mot correct dans une phrase */
+.correct-word {
+  display: inline-block;
+  color: var(--success-color);
+  font-weight: bold;
+  background-color: rgba(40, 167, 69, 0.1);
+  padding: 0 0.5rem;
+  border-radius: 0.3rem;
+}
+
+/* Options d'images */
+.image-option {
+  display: inline-block;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  border: 2px solid #dee2e6;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.image-option:hover {
+  border-color: var(--primary-color);
+}
+
+.image-option img {
+  max-width: 150px;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.image-option.correct-answer {
+  border-color: var(--success-color);
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.image-option.incorrect-answer {
+  border-color: var(--danger-color);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Options de lettres et de mots */
+.options-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.options-container .btn {
+  font-size: 1.5rem;
+  margin: 0.5rem;
+  min-width: 60px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Exercice de syllabes */
+.syllable-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.syllable-item {
+  font-size: 1.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.3rem;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.syllable-item:hover {
+  background-color: #e9ecef;
+}
+
+.syllable-item.selected {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.syllable-result {
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 1rem;
+  min-height: 3rem;
+}
+
+/* Exercice de lecture de texte */
+.text-reading-container {
+  margin-bottom: 2rem;
+}
+
+.text-content {
+  font-size: 1.3rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.text-question {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .letter-display {
+    font-size: 4rem;
+  }
+
+  .word-display {
+    font-size: 2.5rem;
+  }
+
+  .sentence-display {
+    font-size: 1.3rem;
+  }
+
+  .options-container .btn {
+    font-size: 1.3rem;
+    min-width: 50px;
+    min-height: 50px;
+  }
+
+  .image-option img {
+    max-width: 120px;
+    max-height: 120px;
+  }
+}

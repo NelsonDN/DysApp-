@@ -1,0 +1,904 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exercise.title }} - App DYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .question-container {
+        min-height: 300px;
+    }
+    
+    .answer-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .answer-option:hover {
+        border-color: #4E54C8;
+        transform: translateY(-3px);
+    }
+    
+    .answer-option.selected {
+        border-color: #4E54C8;
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .answer-option.correct {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    
+    .answer-option.incorrect {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .feedback-container {
+        min-height: 60px;
+    }
+    
+    .syllable {
+        display: inline-block;
+        padding: 0 2px;
+        border-radius: 3px;
+    }
+    
+    .syllable-highlight {
+        background-color: rgba(78, 84, 200, 0.2);
+        font-weight: bold;
+    }
+    
+    .letter-container {
+        display: inline-block;
+        margin: 0 5px;
+        font-size: 1.5rem;
+    }
+    
+    .letter-highlight {
+        color: #4E54C8;
+        font-weight: bold;
+    }
+    
+    .drag-item {
+        cursor: grab;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin: 5px;
+        display: inline-block;
+    }
+    
+    .drop-zone {
+        min-height: 50px;
+        border: 2px dashed #dee2e6;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+    }
+    
+    .drop-zone.active {
+        border-color: #4E54C8;
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .audio-control {
+        cursor: pointer;
+        font-size: 2rem;
+        color: #4E54C8;
+        transition: all 0.3s ease;
+    }
+    
+    .audio-control:hover {
+        transform: scale(1.1);
+    }
+    
+    .fill-blank-input {
+        border: none;
+        border-bottom: 2px solid #4E54C8;
+        background-color: transparent;
+        font-size: inherit;
+        padding: 0 5px;
+        margin: 0 5px;
+        width: 100px;
+        text-align: center;
+    }
+    
+    .progress-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .progress-step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .progress-step.active {
+        background-color: #4E54C8;
+        color: white;
+    }
+    
+    .progress-step.completed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .progress-step::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: #e9ecef;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+        z-index: -1;
+    }
+    
+    .progress-step:last-child::after {
+        display: none;
+    }
+    
+    .progress-step.completed::after {
+        background-color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">{{ exercise.title }}</h1>
+        <p class="lead text-muted">{{ exercise.exercise_type.name }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux exercices
+        </a>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                Instructions
+            </h5>
+            <div>
+                <span class="badge bg-{{ exercise.difficulty|yesno:'success,primary,danger' }} me-2">
+                    {{ exercise.get_difficulty_display }}
+                </span>
+                <span class="text-muted">
+                    <i class="far fa-clock me-1"></i>{{ exercise.estimated_time }} min
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            {{ exercise.instructions|safe }}
+        </div>
+        <div class="text-center">
+            <button id="start-exercise" class="btn btn-primary btn-lg">
+                <i class="fas fa-play me-2"></i>Commencer l'exercice
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="exercise-container" class="card shadow mb-4" style="display: none;">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-question-circle me-2 text-primary"></i>
+                <span id="question-title">Question</span>
+            </h5>
+            <div>
+                <span class="badge bg-primary" id="question-counter">1/5</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="progress-indicator" class="progress-indicator">
+            <!-- Progress steps will be added dynamically -->
+        </div>
+        
+        <div class="question-container mb-4">
+            <div id="question-text" class="mb-4"></div>
+            
+            <div id="question-image-container" class="text-center mb-4" style="display: none;">
+                <img id="question-image" src="/placeholder.svg" alt="Question image" class="img-fluid rounded">
+            </div>
+            
+            <div id="question-audio-container" class="text-center mb-4" style="display: none;">
+                <div class="audio-control" id="play-audio">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <audio id="question-audio" src="/placeholder.svg"></audio>
+            </div>
+            
+            <div id="answers-container" class="mt-4">
+                <!-- Answer options will be added dynamically -->
+            </div>
+            
+            <div id="drag-drop-container" style="display: none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Éléments à glisser</h6>
+                        <div id="drag-items" class="mb-3">
+                            <!-- Drag items will be added dynamically -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Zones de dépôt</h6>
+                        <div id="drop-zones">
+                            <!-- Drop zones will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="fill-blank-container" style="display: none;">
+                <div id="fill-blank-text" class="mb-3">
+                    <!-- Text with blanks will be added dynamically -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="feedback-container mb-4">
+            <div id="feedback-message" class="alert" style="display: none;"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <button id="prev-question" class="btn btn-outline-secondary" disabled>
+                <i class="fas fa-arrow-left me-2"></i>Précédent
+            </button>
+            <button id="submit-answer" class="btn btn-primary">
+                Valider<i class="fas fa-check ms-2"></i>
+            </button>
+            <button id="next-question" class="btn btn-primary" style="display: none;">
+                Suivant<i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="exercise-complete" class="card shadow" style="display: none;">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            Exercice terminé !
+        </h5>
+    </div>
+    <div class="card-body text-center">
+        <i class="fas fa-trophy fa-5x text-warning mb-4"></i>
+        <h4>Félicitations !</h4>
+        <p class="lead">Tu as terminé l'exercice avec succès.</p>
+        <div class="mb-4">
+            <h5>Ton score : <span id="final-score">0</span> / <span id="max-score">0</span></h5>
+            <div class="progress mt-2">
+                <div id="score-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a id="view-results" href="#" class="btn btn-primary btn-lg">
+                <i class="fas fa-chart-bar me-2"></i>Voir les résultats détaillés
+            </a>
+            <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-list me-2"></i>Retour aux exercices
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Remplacez la section JavaScript de votre template par ce code corrigé :
+
+// Configuration de jQuery pour inclure le CSRF token dans toutes les requêtes AJAX
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+        }
+    }
+});
+
+// Fonction pour récupérer le CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+$(document).ready(function() {
+    // Variables
+    const attemptId = {{ attempt.id }};
+    let currentQuestionIndex = 0;
+    let totalQuestions = 0;
+    let questions = [];
+    let selectedAnswer = null;
+    let score = 0;
+    
+    // Start exercise button
+    $('#start-exercise').click(function() {
+        $(this).prop('disabled', true);
+        $('#exercise-container').show();
+        loadQuestion(0);
+    });
+    
+    // CORRECTION: Utiliser une fonction pour attacher les événements
+    function attachEventListeners() {
+        // Submit answer - DÉSATTACHER d'abord pour éviter les doublons
+        $('#submit-answer').off('click').on('click', function() {
+            console.log('Bouton Valider cliqué!'); // Debug
+            console.log('Type de question:', questions.question_type); // Debug
+            
+            // Validate answer
+            if (!validateAnswer()) {
+                showFeedback('Veuillez sélectionner une réponse ou saisir du texte.', 'warning');
+                return;
+            }
+            
+            // Disable submit button
+            $(this).prop('disabled', true);
+            
+            // Prepare data
+            const data = {
+                question_id: questions.id,
+                answer_id: null,
+                text_response: ""
+            };
+            
+            // Get answer based on question type
+            if (questions.question_type === 'fill_blank') {
+                // CORRECTION: Récupérer la valeur du champ de saisie correctement
+                const inputValue = $('#fill-blank-input').val() || '';
+                data.text_response = inputValue.trim();
+                data.answer_id = null;
+                console.log('Réponse textuelle récupérée:', data.text_response); // Debug
+            } else {
+                data.answer_id = selectedAnswer;
+                data.text_response = "";
+            }
+            
+            console.log('Données à envoyer:', data); // Debug
+            
+            // Add CSRF token
+            const csrftoken = getCookie('csrftoken');
+            
+            // Submit answer
+            $.ajax({
+                url: `/exercises/attempt/${attemptId}/submit/`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log('Réponse reçue:', response); // Debug
+                    
+                    // Update score
+                    score = response.score;
+                    
+                    // Show feedback
+                    if (response.is_correct) {
+                        showFeedback(response.feedback || 'Bonne réponse !', 'success');
+                        // Marquer le champ comme correct
+                        $('#fill-blank-input').addClass('is-valid');
+                    } else {
+                        showFeedback(response.feedback || 'Réponse incorrecte.', 'danger');
+                        // Marquer le champ comme incorrect
+                        $('#fill-blank-input').addClass('is-invalid');
+                    }
+                    
+                    // Désactiver le champ de saisie
+                    $('#fill-blank-input').prop('disabled', true);
+                    
+                    // Show next button
+                    $('#submit-answer').hide();
+                    $('#next-question').show();
+                    
+                    // If exercise is completed
+                    if (response.completed) {
+                        $('#next-question').text('Terminer').addClass('btn-success');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erreur AJAX:', error);
+                    console.error('Réponse du serveur:', xhr.responseText);
+                    showFeedback('Erreur lors de la soumission de la réponse. Veuillez réessayer.', 'danger');
+                    $('#submit-answer').prop('disabled', false);
+                }
+            });
+        });
+        
+        // Previous question button
+        $('#prev-question').off('click').on('click', function() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        });
+        
+        // Next question button
+        $('#next-question').off('click').on('click', function() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                completeExercise();
+            }
+        });
+    }
+    
+    // Load question
+    function loadQuestion(index) {
+        console.log(`Chargement de la question ${index}`); // Debug
+        
+        // Reset containers
+        $('#answers-container').hide().empty();
+        $('#drag-drop-container').hide();
+        $('#fill-blank-container').hide();
+        
+        // Show loading state
+        $('#question-text').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement de la question...</p></div>');
+        
+        // Fetch question data
+        $.ajax({
+            url: `/exercises/attempt/${attemptId}/question/${index}/`,
+            method: 'GET',
+            success: function(data) {
+                console.log('Question chargée:', data); // Debug
+                
+                if (data.type === 'error') {
+                    showFeedback(data.message, 'danger');
+                    return;
+                }
+                
+                // Store questions data
+                questions = data;
+                totalQuestions = data.total_questions;
+                currentQuestionIndex = data.current_index;
+                
+                // Update progress indicator
+                updateProgressIndicator();
+                
+                // Update question counter
+                $('#question-counter').text(`${currentQuestionIndex + 1}/${totalQuestions}`);
+                
+                // Display question
+                $('#question-text').html(data.text);
+                
+                // Handle question image
+                if (data.image) {
+                    $('#question-image').attr('src', data.image);
+                    $('#question-image-container').show();
+                } else {
+                    $('#question-image-container').hide();
+                }
+                
+                // Handle question audio
+                if (data.audio) {
+                    $('#question-audio').attr('src', data.audio);
+                    $('#question-audio-container').show();
+                } else {
+                    $('#question-audio-container').hide();
+                }
+                
+                // Reset selected answer
+                selectedAnswer = null;
+                
+                // Hide feedback
+                $('#feedback-message').hide();
+                
+                // Display answers based on question type
+                switch (data.question_type) {
+                    case 'multiple_choice':
+                        renderMultipleChoice(data.answers);
+                        break;
+                    case 'true_false':
+                        renderTrueFalse();
+                        break;
+                    case 'matching':
+                        renderMatching(data.answers);
+                        break;
+                    case 'drag_drop':
+                        renderDragDrop(data.answers);
+                        break;
+                    case 'fill_blank':
+                        renderFillBlank(data.text);
+                        break;
+                    case 'audio':
+                        renderAudio(data.answers);
+                        break;
+                    case 'visual':
+                        renderVisual(data.answers);
+                        break;
+                    default:
+                        renderMultipleChoice(data.answers);
+                }
+                
+                // Handle navigation buttons
+                $('#prev-question').prop('disabled', currentQuestionIndex === 0);
+                $('#submit-answer').show().prop('disabled', false); // CORRECTION: Réactiver le bouton
+                $('#next-question').hide();
+                
+                // If question was already answered
+                if (data.already_answered) {
+                    if (data.previous_answer) {
+                        selectedAnswer = data.previous_answer;
+                        $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('selected');
+                    }
+                    
+                    if (data.was_correct) {
+                        showFeedback('Bonne réponse !', 'success');
+                    } else {
+                        showFeedback('Réponse incorrecte.', 'danger');
+                    }
+                    
+                    $('#submit-answer').hide();
+                    $('#next-question').show();
+                }
+                
+                // CORRECTION: Réattacher les événements après chaque chargement
+                attachEventListeners();
+                
+            },
+            error: function() {
+                showFeedback('Erreur lors du chargement de la question. Veuillez réessayer.', 'danger');
+            }
+        });
+    }
+    
+    // Update progress indicator
+    function updateProgressIndicator() {
+        const container = $('#progress-indicator');
+        container.empty();
+        
+        for (let i = 0; i < totalQuestions; i++) {
+            const step = $('<div class="progress-step"></div>').text(i + 1);
+            
+            if (i < currentQuestionIndex) {
+                step.addClass('completed');
+            } else if (i === currentQuestionIndex) {
+                step.addClass('active');
+            }
+            
+            container.append(step);
+        }
+    }
+    
+    // Render multiple choice answers
+    function renderMultipleChoice(answers) {
+        const container = $('#answers-container');
+        container.empty().show();
+        
+        answers.forEach(answer => {
+            const option = $(`
+                <div class="answer-option" data-id="${answer.id}">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div>
+                            ${answer.text}
+                            ${answer.image ? `<img src="${answer.image}" alt="Option image" class="img-fluid mt-2 rounded">` : ''}
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            option.click(function() {
+                console.log(`Réponse sélectionnée: ${answer.id}`); // Debug
+                $('.answer-option').removeClass('selected');
+                $(this).addClass('selected');
+                $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+                $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+                selectedAnswer = answer.id;
+            });
+            
+            container.append(option);
+        });
+    }
+    
+    // Render true/false answers
+    function renderTrueFalse() {
+        const container = $('#answers-container');
+        container.empty().show();
+        
+        const trueOption = $(`
+            <div class="answer-option" data-value="true">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="far fa-circle"></i>
+                    </div>
+                    <div>
+                        Vrai
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        const falseOption = $(`
+            <div class="answer-option" data-value="false">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="far fa-circle"></i>
+                    </div>
+                    <div>
+                        Faux
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        trueOption.click(function() {
+            $('.answer-option').removeClass('selected');
+            $(this).addClass('selected');
+            $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+            $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+            selectedAnswer = 'true';
+        });
+        
+        falseOption.click(function() {
+            $('.answer-option').removeClass('selected');
+            $(this).addClass('selected');
+            $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+            $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+            selectedAnswer = 'false';
+        });
+        
+        container.append(trueOption);
+        container.append(falseOption);
+    }
+    
+    // CORRECTION: Fonction renderFillBlank corrigée
+    function renderFillBlank(text) {
+        console.log('Rendu du fill_blank, texte:', text); // Debug
+        $('#fill-blank-container').show();
+        $('#answers-container').hide(); // Masquer les autres conteneurs
+        
+        const container = $('#fill-blank-text');
+        container.empty();
+        
+        // CORRECTION: Créer un champ de saisie simple pour les exercices audio
+        // Au lieu de remplacer [blank], créer directement un champ
+        const inputHtml = `
+            <div class="text-center">
+                <p class="mb-3">Écris le mot que tu entends :</p>
+                <input type="text" 
+                       id="fill-blank-input" 
+                       class="form-control form-control-lg text-center" 
+                       placeholder="Tape ici le mot que tu entends..." 
+                       style="max-width: 300px; margin: 0 auto; font-size: 1.2rem;">
+            </div>
+        `;
+        
+        container.html(inputHtml);
+        
+        // Focus sur le champ de saisie
+        setTimeout(() => {
+            $('#fill-blank-input').focus();
+        }, 100);
+        
+        // Gérer la touche Entrée pour soumettre
+        $('#fill-blank-input').keypress(function(e) {
+            if (e.which === 13) {
+                $('#submit-answer').click();
+                e.preventDefault();
+            }
+        });
+        
+        console.log('Champ de saisie créé'); // Debug
+    }
+    
+    // Render matching answers
+    function renderMatching(answers) {
+        $('#drag-drop-container').show();
+        $('#answers-container').hide();
+        
+        const dragItems = $('#drag-items');
+        const dropZones = $('#drop-zones');
+        
+        dragItems.empty();
+        dropZones.empty();
+        
+        // Create shuffled array of answers
+        const shuffledAnswers = [...answers].sort(() => Math.random() - 0.5);
+        
+        // Create drag items
+        shuffledAnswers.forEach(answer => {
+            const item = $(`
+                <div class="drag-item" draggable="true" data-id="${answer.id}">
+                    ${answer.text}
+                </div>
+            `);
+            
+            // Add drag events
+            item.on('dragstart', function(e) {
+                e.originalEvent.dataTransfer.setData('text/plain', answer.id);
+                $(this).addClass('dragging');
+            });
+            
+            item.on('dragend', function() {
+                $(this).removeClass('dragging');
+            });
+            
+            dragItems.append(item);
+        });
+        
+        // Create drop zones
+        answers.forEach((answer, index) => {
+            const zone = $(`
+                <div class="drop-zone" data-index="${index}">
+                    <div class="drop-zone-label">${index + 1}</div>
+                </div>
+            `);
+            
+            // Add drop events
+            zone.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('active');
+            });
+            
+            zone.on('dragleave', function() {
+                $(this).removeClass('active');
+            });
+            
+            zone.on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('active');
+                
+                const itemId = e.originalEvent.dataTransfer.getData('text/plain');
+                const item = $(`.drag-item[data-id="${itemId}"]`);
+                
+                // Move item to drop zone
+                $(this).append(item);
+                
+                // Update selected answers
+                if (!selectedAnswer) {
+                    selectedAnswer = {};
+                }
+                
+                selectedAnswer[index] = itemId;
+            });
+            
+            dropZones.append(zone);
+        });
+    }
+
+    function renderDragDrop(answers) {
+        $('#drag-drop-container').show();
+        $('#answers-container').hide();
+        // Similar to matching but with different UI
+    }
+
+    // Render audio question
+    function renderAudio(answers) {
+        renderMultipleChoice(answers); // Utiliser le même rendu que multiple choice
+    }
+    
+    // Render visual question
+    function renderVisual(answers) {
+        renderMultipleChoice(answers); // Utiliser le même rendu que multiple choice
+    }
+    
+    // Play audio
+    $('#play-audio').click(function() {
+        const audio = document.getElementById('question-audio');
+        if (audio && audio.src) {
+            audio.play().catch(e => {
+                console.error('Erreur lecture audio:', e);
+                showFeedback('Impossible de lire l\'audio. Vérifiez que le fichier existe.', 'warning');
+            });
+        }
+    });
+    
+    // CORRECTION: Fonction validateAnswer corrigée
+    function validateAnswer() {
+        console.log('Validation - Type de question:', questions.question_type);
+        console.log('Validation - Réponse sélectionnée:', selectedAnswer);
+        
+        switch (questions.question_type) {
+            case 'multiple_choice':
+            case 'true_false':
+            case 'audio':
+            case 'visual':
+                return selectedAnswer !== null && selectedAnswer !== undefined;
+            case 'fill_blank':
+                // CORRECTION: Vérifier que le champ de saisie contient du texte
+                const inputValue = $('#fill-blank-input').val();
+                console.log('Valeur du champ:', inputValue); // Debug
+                return inputValue && inputValue.trim().length > 0;
+            case 'matching':
+            case 'drag_drop':
+                return selectedAnswer !== null;
+            default:
+                return selectedAnswer !== null;
+        }
+    }
+    
+    // Show feedback message
+    function showFeedback(message, type) {
+        const feedback = $('#feedback-message');
+        feedback.removeClass('alert-success alert-danger alert-warning').addClass(`alert-${type}`);
+        feedback.html(message);
+        feedback.show();
+    }
+    
+    // Complete exercise
+    function completeExercise() {
+        // Show completion screen
+        $('#exercise-container').hide();
+        $('#exercise-complete').show();
+        
+        // Update score
+        $('#final-score').text(score);
+        $('#max-score').text(totalQuestions * 10);
+        
+        const percentage = (score / (totalQuestions * 10)) * 100;
+        $('#score-progress').css('width', `${percentage}%`).attr('aria-valuenow', percentage);
+        
+        // Set result URL
+        $('#view-results').attr('href', `/exercises/result/${attemptId}/`);
+        
+        // Submit completion to server
+        const csrftoken = getCookie('csrftoken');
+        
+        $.ajax({
+            url: `/exercises/attempt/${attemptId}/submit/`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            data: JSON.stringify({
+                type: 'complete_exercise'
+            }),
+            success: function(response) {
+                console.log('Exercise completed successfully');
+                if (response.redirect_url) {
+                    window.location.href = response.redirect_url;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error completing exercise:', error);
+            }
+        });
+    }
+    
+    // Attacher les événements au chargement initial
+    attachEventListeners();
+});
+
+
+
+
+
+</script>
+{% endblock %}

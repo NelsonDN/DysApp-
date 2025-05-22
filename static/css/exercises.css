@@ -1,0 +1,241 @@
+/**
+ * Styles pour les exercices
+ */
+
+/* Conteneur d'exercice */
+.exercise-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* En-tête d'exercice */
+.exercise-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.exercise-instructions {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.exercise-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Progression d'exercice */
+.exercise-progress {
+  margin-bottom: 2rem;
+}
+
+.progress {
+  height: 0.5rem;
+  border-radius: 1rem;
+  background-color: #e9ecef;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  background-color: var(--primary-color);
+  border-radius: 1rem;
+}
+
+/* Conteneur de question */
+.question-container {
+  margin-bottom: 2rem;
+}
+
+.question-text {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.question-image {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.question-image img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.5rem;
+}
+
+.question-audio {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Conteneur de réponses */
+.answers-container {
+  margin-bottom: 2rem;
+}
+
+/* Options de réponse */
+.list-group-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+.list-group-item.disabled {
+  cursor: not-allowed;
+}
+
+/* Feedback */
+.feedback-container {
+  margin-bottom: 2rem;
+}
+
+/* Actions d'exercice */
+.exercise-actions {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Styles pour les exercices de type matching */
+.matching-container {
+  margin-bottom: 2rem;
+}
+
+.matching-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.3rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.matching-item:hover {
+  background-color: #e9ecef;
+}
+
+.matching-item.selected {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.matching-item.correct {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.matching-item.incorrect {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.matching-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+/* Styles pour les exercices de type drag and drop */
+.drag-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.3rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: grab;
+  transition: all 0.2s ease-in-out;
+}
+
+.drag-item:active {
+  cursor: grabbing;
+}
+
+.drop-zone {
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 0.3rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-zone.hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.drop-zone.filled {
+  border-style: solid;
+}
+
+/* Styles pour les exercices de type fill in the blank */
+.fill-blank-container {
+  margin-bottom: 2rem;
+}
+
+.fill-blank-text {
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+.fill-blank-input {
+  display: inline-block;
+  width: 150px;
+  margin: 0 0.5rem;
+}
+
+/* Styles pour les résultats d'exercice */
+.result-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.result-score {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.result-message {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.result-details {
+  margin-bottom: 2rem;
+}
+
+.result-actions {
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .exercise-container {
+    padding: 1rem;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+  }
+
+  .matching-arrow {
+    margin: 1rem 0;
+  }
+}

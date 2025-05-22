@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer un enfant - App DYS{% endblock %}
+
+{% block content %}
+<div class="container container-narrow">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-0">
+                <i class="fas fa-trash-alt me-2 text-danger"></i>
+                Supprimer un profil enfant
+            </h1>
+            <p class="lead text-muted">Cette action est irréversible</p>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Attention</h5>
+                <p>Vous êtes sur le point de supprimer le profil de <strong>{{ child.username }}</strong>.</p>
+                <p>Cette action est irréversible et toutes les données associées seront perdues :</p>
+                <ul>
+                    <li>Profil et informations personnelles</li>
+                    <li>Historique des exercices</li>
+                    <li>Progression et récompenses</li>
+                </ul>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'accounts:children_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Annuler
+                </a>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Confirmer la suppression
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

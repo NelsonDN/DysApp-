@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mes enfants - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-child me-2 text-primary"></i>
+                Mes enfants
+            </h1>
+            <p class="lead text-muted">Gérez les profils de vos enfants et suivez leur progression</p>
+        </div>
+        {% comment %} <div class="col-md-4 text-md-end">
+            <a href="{% url 'accounts:add_child' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un enfant
+            </a>
+        </div> {% endcomment %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Liste de mes enfants</h5>
+                </div>
+                <div class="card-body">
+                    {% if children %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Niveau scolaire</th>
+                                        <th>Troubles</th>
+                                        <th>Niveau</th>
+                                        <th>Points</th>
+                                        <th>Dernière activité</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for child in children %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white me-2">
+                                                        {{ child.username|first|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div>{{ child.get_full_name|default:child.username }}</div>
+                                                        <small class="text-muted">{{ child.username }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ child.child_profile.get_school_level_display }}</td>
+                                            <td>
+                                                {% if child.child_profile.has_dyslexia %}
+                                                    <span class="badge bg-warning">Dyslexie</span>
+                                                {% endif %}
+                                                {% if child.child_profile.has_dyscalculia %}
+                                                    <span class="badge bg-danger">Dyscalculie</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Niveau {{ child.child_profile.level }}</span>
+                                            </td>
+                                            <td>{{ child.child_profile.points }}</td>
+                                            <td>
+                                                {% if child.last_login %}
+                                                    {{ child.last_login|date:"d/m/Y H:i" }}
+                                                {% else %}
+                                                    Jamais connecté
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'progress:child_progress' child.id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </a>
+                                                    {% comment %} <a href="{% url 'accounts:edit_child' child.id %}" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a> {% endcomment %}
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteChildModal{{ child.id }}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Modal de suppression -->
+                                                <div class="modal fade" id="deleteChildModal{{ child.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Confirmation de suppression</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Êtes-vous sûr de vouloir supprimer le profil de <strong>{{ child.username }}</strong> ?</p>
+                                                                <p class="text-danger">Cette action est irréversible et toutes les données associées seront perdues.</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                <form method="post" action="{% url 'accounts:delete_child' child.id %}">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-child fa-4x text-muted mb-3"></i>
+                            <h4>Vous n'avez pas encore ajouté d'enfant</h4>
+                            <p class="text-muted">Ajoutez un enfant pour commencer à suivre sa progression</p>
+                            <a href="{% url 'accounts:add_child' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i>Ajouter un enfant
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

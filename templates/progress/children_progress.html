@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load score_filters %}
+
+{% block title %}Progression de mes enfants - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Progression de mes enfants
+            </h1>
+            <p class="lead text-muted">Vue d'ensemble des progrès de tous vos enfants</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'accounts:children_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-child me-2"></i>Gérer mes enfants
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-child fa-3x text-primary mb-3"></i>
+                    <h3>{{ total_children }}</h3>
+                    <p class="mb-0">Enfants au total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-tasks fa-3x text-info mb-3"></i>
+                    <h3>{{ total_exercises }}</h3>
+                    <p class="mb-0">Exercices complétés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-percentage fa-3x text-warning mb-3"></i>
+                    <h3>{{ avg_score|floatformat:1 }}%</h3>
+                    <p class="mb-0">Score moyen</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Progression par enfant</h5>
+                </div>
+                <div class="card-body">
+                    {% if children %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Enfant</th>
+                                        <th>Troubles</th>
+                                        <th>Exercices complétés</th>
+                                        <th>Score moyen</th>
+                                        <th>Progression</th>
+                                        <th>Dernière activité</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for child in children %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white me-2">
+                                                        {{ child.username|first|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div>{{ child.get_full_name|default:child.username }}</div>
+                                                        <small class="text-muted">{{ child.username }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if child.child_profile.has_dyslexia %}
+                                                    <span class="badge bg-warning">Dyslexie</span>
+                                                {% endif %}
+                                                {% if child.child_profile.has_dyscalculia %}
+                                                    <span class="badge bg-danger">Dyscalculie</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ child.stats.total_exercises }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    
+
+                                                    <div class="progress-bar 
+                                                        {% if child.stats.avg_score < 20 %}
+                                                            bg-danger
+                                                        {% elif child.stats.avg_score < 40 %}
+                                                            bg-warning
+                                                        {% elif child.stats.avg_score < 60 %}
+                                                            bg-info
+                                                        {% elif child.stats.avg_score < 80 %}
+                                                            bg-success
+                                                        {% else %}
+                                                            bg-primary
+                                                        {% endif %}"
+                                                        role="progressbar"
+                                                        style="width: {{ child.stats.avg_score|default:0 }}%;"
+                                                        aria-valuenow="{{ child.stats.avg_score|default:0 }}"
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="text-center small mt-1">{{ child.stats.avg_score|floatformat:1 }}%</div>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" 
+                                                        role="progressbar" 
+                                                        style="width: {{ child.stats.progress_percentage }}%;" 
+                                                        aria-valuenow="{{ child.stats.progress_percentage }}" 
+                                                        aria-valuemin="0" 
+                                                        aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <div class="text-center small mt-1">{{ child.stats.progress_percentage|floatformat:1 }}%</div>
+                                            </td>
+                                            <td>
+                                                {% if child.last_activity %}
+                                                    {{ child.last_activity|date:"d/m/Y" }}
+                                                {% else %}
+                                                    Jamais
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'progress:child_progress' child.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-chart-line"></i> Détails
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-child fa-4x text-muted mb-3"></i>
+                            <h4>Vous n'avez pas encore d'enfants</h4>
+                            <p class="text-muted">Ajoutez des enfants pour commencer à suivre leur progression</p>
+                            <a href="{% url 'accounts:add_child' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i>Ajouter un enfant
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

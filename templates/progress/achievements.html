@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mes récompenses - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-trophy me-2 text-warning"></i>
+                Mes récompenses
+            </h1>
+            <p class="lead text-muted">Découvrez toutes les récompenses que vous avez obtenues</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'progress:progress_report' %}" class="btn btn-primary">
+                <i class="fas fa-chart-line me-2"></i>Rapport de progression
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-medal fa-3x text-warning mb-3"></i>
+                    <h3>{{ user_achievements.count }}</h3>
+                    <p class="mb-0">Récompenses obtenues</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-star fa-3x text-success mb-3"></i>
+                    <h3>{{ total_achievement_points }}</h3>
+                    <p class="mb-0">Points gagnés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-award fa-3x text-primary mb-3"></i>
+                    <h3>{{ achievement_percentage }}%</h3>
+                    <p class="mb-0">Récompenses débloquées</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-trophy me-2 text-warning"></i>
+                Mes récompenses
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if user_achievements %}
+                <div class="row">
+                    {% for user_achievement in user_achievements %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 achievement-card">
+                                <div class="card-body text-center">
+                                    <i class="fas {{ user_achievement.achievement.icon }} fa-3x text-warning mb-3"></i>
+                                    <h5 class="card-title">{{ user_achievement.achievement.name }}</h5>
+                                    <p class="card-text">{{ user_achievement.achievement.description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="badge bg-primary">+{{ user_achievement.achievement.points }} points</span>
+                                        <small class="text-muted">{{ user_achievement.date_earned|date:"d/m/Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-trophy fa-4x text-muted mb-3"></i>
+                    <h4>Vous n'avez pas encore de récompenses</h4>
+                    <p class="text-muted">Complétez des exercices pour gagner des récompenses</p>
+                    <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-play-circle me-2"></i>Commencer un exercice
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-lock me-2 text-secondary"></i>
+                Récompenses à débloquer
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if locked_achievements %}
+                <div class="row">
+                    {% for achievement in locked_achievements %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 achievement-card locked">
+                                <div class="card-body text-center">
+                                    <i class="fas {{ achievement.icon }} fa-3x text-muted mb-3"></i>
+                                    <h5 class="card-title">{{ achievement.name }}</h5>
+                                    <p class="card-text">{{ achievement.description }}</p>
+                                    <div class="mt-3">
+                                        <span class="badge bg-secondary">+{{ achievement.points }} points</span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light text-center">
+                                    <i class="fas fa-lock me-2"></i> À débloquer
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h4>Félicitations !</h4>
+                    <p class="text-muted">Vous avez débloqué toutes les récompenses disponibles</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .achievement-card {
+        transition: all 0.3s ease;
+    }
+    
+    .achievement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .achievement-card.locked {
+        opacity: 0.7;
+    }
+    
+    .achievement-card.locked:hover {
+        opacity: 1;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,246 @@
+/**
+ * Styles personnalisés pour l'application
+ */
+
+/* Styles pour le boulier virtuel */
+.abacus {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.abacus-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.abacus-bead {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #dee2e6;
+  margin: 0 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.abacus-bead.active {
+  background-color: #4e54c8;
+}
+
+.abacus-counter {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+/* Styles pour la droite numérique */
+.number-line {
+  position: relative;
+  height: 40px;
+  margin: 2rem 0;
+}
+
+.number-line-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #dee2e6;
+  transform: translateY(-50%);
+}
+
+.number-line-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+}
+
+.number-line-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 10px;
+  background-color: #adb5bd;
+  text-align: center;
+}
+
+.number-line-marker::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+}
+
+.number-line-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-color: #4e54c8;
+  border-radius: 50%;
+  cursor: grab;
+}
+
+.number-line-handle:active {
+  cursor: grabbing;
+}
+
+.number-line-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Styles pour les syllabes */
+.syllable {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #e9ecef;
+  border-radius: 0.25rem;
+  margin: 0 0.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.syllable:hover {
+  background-color: #dee2e6;
+}
+
+.syllable-highlight {
+  background-color: #4e54c8;
+  color: white;
+}
+
+/* Styles pour les exercices */
+.exercise-container {
+  position: relative;
+  min-height: 400px;
+}
+
+.question-container {
+  margin-bottom: 2rem;
+}
+
+.feedback-container {
+  margin-bottom: 2rem;
+}
+
+.exercise-actions {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Styles pour les avatars */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Styles pour les cartes d'exercice */
+.exercise-card {
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les récompenses */
+.reward-card {
+  transition: all 0.3s ease;
+}
+
+.reward-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.reward-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Styles pour les boutons audio */
+.audio-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Styles pour les réponses */
+.answer-option {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.answer-option:hover {
+  background-color: #f8f9fa;
+}
+
+.answer-option.selected {
+  background-color: #e9ecef;
+  border-color: #4e54c8;
+}
+
+.answer-option.correct {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.answer-option.incorrect {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.answer-option.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Styles pour les conteneurs de largeur limitée */
+.container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Styles pour les badges */
+.badge {
+  font-weight: 500;
+  padding: 0.4em 0.6em;
+}
+
+/* Styles pour les progrès */
+.progress {
+  height: 0.5rem;
+  border-radius: 1rem;
+  background-color: #e9ecef;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  border-radius: 1rem;
+}

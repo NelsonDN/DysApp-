@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mon profil - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">
+                <i class="fas fa-user-circle me-2 text-primary"></i>
+                Mon profil
+            </h1>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                                    <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Adresse e-mail</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">Prénom</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Nom</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if user.is_child %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="school_level" class="form-label">Niveau scolaire</label>
+                                    <select class="form-select" id="school_level" name="school_level">
+                                        <option value="CP" {% if user.child_profile.school_level == 'CP' %}selected{% endif %}>CP</option>
+                                        <option value="CE1" {% if user.child_profile.school_level == 'CE1' %}selected{% endif %}>CE1</option>
+                                        <option value="CE2" {% if user.child_profile.school_level == 'CE2' %}selected{% endif %}>CE2</option>
+                                        <option value="CM1" {% if user.child_profile.school_level == 'CM1' %}selected{% endif %}>CM1</option>
+                                        <option value="CM2" {% if user.child_profile.school_level == 'CM2' %}selected{% endif %}>CM2</option>
+                                        <option value="6EME" {% if user.child_profile.school_level == '6EME' %}selected{% endif %}>6ème</option>
+                                        <option value="5EME" {% if user.child_profile.school_level == '5EME' %}selected{% endif %}>5ème</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Troubles</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="has_dyslexia" name="has_dyslexia" {% if user.child_profile.has_dyslexia %}checked{% endif %}>
+                                        <label class="form-check-label" for="has_dyslexia">
+                                            Dyslexie
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="has_dyscalculia" name="has_dyscalculia" {% if user.child_profile.has_dyscalculia %}checked{% endif %}>
+                                        <label class="form-check-label" for="has_dyscalculia">
+                                            Dyscalculie
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Préférences d'affichage</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="dyslexia_mode" name="dyslexia_mode" {% if user.child_profile.dyslexia_mode %}checked{% endif %}>
+                                        <label class="form-check-label" for="dyslexia_mode">
+                                            Mode dyslexie
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Statistiques</label>
+                                    <div class="d-flex">
+                                        <div class="me-4">
+                                            <span class="badge bg-primary">Niveau {{ user.child_profile.level }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success">{{ user.child_profile.points }} points</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.is_parent %}
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Enfants associés</label>
+                                    <div class="list-group">
+                                        {% for child in user.parent_profile.children.all %}
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                {{ child.username }}
+                                                <a href="{% url 'progress:child_progress' child.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-chart-line me-1"></i> Progression
+                                                </a>
+                                            </div>
+                                        {% empty %}
+                                            <div class="list-group-item text-center">
+                                                <p class="mb-0">Aucun enfant associé</p>
+                                                <a href="{% url 'accounts:add_child' %}" class="btn btn-sm btn-primary mt-2">
+                                                    <i class="fas fa-plus me-1"></i> Ajouter un enfant
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.is_teacher %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="school_name" class="form-label">Nom de l'école</label>
+                                    <input type="text" class="form-control" id="school_name" name="school_name" value="{{ user.teacher_profile.school_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Élèves associés</label>
+                                    <p>{{ user.teacher_profile.students.count }} élèves</p>
+                                    <a href="{% url 'accounts:students_list' %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-users me-1"></i> Gérer les élèves
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Laissez vide pour ne pas changer">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password_confirm" class="form-label">Confirmer le mot de passe</label>
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Laissez vide pour ne pas changer">
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Paramètres du compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Notifications</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="email_notifications" checked>
+                            <label class="form-check-label" for="email_notifications">
+                                Recevoir des notifications par e-mail
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Confidentialité</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="share_progress" checked>
+                            <label class="form-check-label" for="share_progress">
+                                Partager ma progression avec mes enseignants
+                            </label>
+                        </div>
+                    </div>
+                    
+                    {% comment %} <div class="text-center">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="fas fa-trash-alt me-1"></i> Supprimer mon compte
+                        </button>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression de compte -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront perdues.</p>
+                {% comment %} <form method="post" action="{% url 'accounts:delete_account' %}"> {% endcomment %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmez votre mot de passe</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

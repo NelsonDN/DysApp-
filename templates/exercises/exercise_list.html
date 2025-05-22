@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Exercices - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-tasks me-2 text-primary"></i>
+                Exercices
+            </h1>
+            <p class="lead text-muted">Découvrez nos exercices adaptés pour la dyslexie et la dyscalculie</p>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="text" id="exerciseSearch" class="form-control" placeholder="Rechercher un exercice...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="exerciseTypeTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
+                                Tous les exercices
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="dyslexia-tab" data-bs-toggle="tab" data-bs-target="#dyslexia" type="button" role="tab" aria-controls="dyslexia" aria-selected="false">
+                                Dyslexie
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="dyscalculia-tab" data-bs-toggle="tab" data-bs-target="#dyscalculia" type="button" role="tab" aria-controls="dyscalculia" aria-selected="false">
+                                Dyscalculie
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="exerciseTypeTabContent">
+                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            {% if exercises %}
+                                <div class="row">
+                                    {% for exercise in exercises %}
+                                        <div class="col-md-4 mb-4 exercise-card-container">
+                                            <div class="card h-100 exercise-card">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="card-title mb-0">{{ exercise.title }}</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">{{ exercise.instructions|safe|truncatewords_html:20 }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <span class="badge bg-{{ exercise.difficulty|yesno:'danger,primary,success' }}">
+                                                            {{ exercise.get_difficulty_display }}
+                                                        </span>
+                                                        <span class="badge bg-secondary">
+                                                            <i class="far fa-clock me-1"></i> {{ exercise.estimated_time }} min
+                                                        </span>
+                                                    </div>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">
+                                                            Type: 
+                                                            <span class="badge bg-info">{{ exercise.exercise_type.name }}</span>
+                                                            {% if exercise.exercise_type.disorder_type == 'dyslexia' %}
+                                                                <span class="badge bg-warning">Dyslexie</span>
+                                                            {% elif exercise.exercise_type.disorder_type == 'dyscalculia' %}
+                                                                <span class="badge bg-danger">Dyscalculie</span>
+                                                            {% else %}
+                                                                <span class="badge bg-success">Dyslexie & Dyscalculie</span>
+                                                            {% endif %}
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer bg-white">
+                                                    <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="btn btn-primary w-100">
+                                                        <i class="fas fa-info-circle me-1"></i> Détails
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-tasks fa-4x text-muted mb-3"></i>
+                                    <h4>Aucun exercice disponible</h4>
+                                    <p class="text-muted">Revenez plus tard pour découvrir de nouveaux exercices</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="tab-pane fade" id="dyslexia" role="tabpanel" aria-labelledby="dyslexia-tab">
+                            {% if dyslexia_exercises %}
+                                <div class="row">
+                                    {% for exercise in dyslexia_exercises %}
+                                        <div class="col-md-4 mb-4">
+                                            <div class="card h-100 exercise-card">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="card-title mb-0">{{ exercise.title }}</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">{{ exercise.instructions|truncatewords:20 }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <span class="badge bg-{{ exercise.difficulty|yesno:'danger,primary,success' }}">
+                                                            {{ exercise.get_difficulty_display }}
+                                                        </span>
+                                                        <span class="badge bg-secondary">
+                                                            <i class="far fa-clock me-1"></i> {{ exercise.estimated_time }} min
+                                                        </span>
+                                                    </div>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">
+                                                            Type: 
+                                                            <span class="badge bg-info">{{ exercise.exercise_type.name }}</span>
+                                                            <span class="badge bg-warning">Dyslexie</span>
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer bg-white">
+                                                    <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="btn btn-primary w-100">
+                                                        <i class="fas fa-info-circle me-1"></i> Détails
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-book-reader fa-4x text-muted mb-3"></i>
+                                    <h4>Aucun exercice de dyslexie disponible</h4>
+                                    <p class="text-muted">Revenez plus tard pour découvrir de nouveaux exercices</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="tab-pane fade" id="dyscalculia" role="tabpanel" aria-labelledby="dyscalculia-tab">
+                            {% if dyscalculia_exercises %}
+                                <div class="row">
+                                    {% for exercise in dyscalculia_exercises %}
+                                        <div class="col-md-4 mb-4">
+                                            <div class="card h-100 exercise-card">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="card-title mb-0">{{ exercise.title }}</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">{{ exercise.instructions|truncatewords:20 }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <span class="badge bg-{{ exercise.difficulty|yesno:'danger,primary,success' }}">
+                                                            {{ exercise.get_difficulty_display }}
+                                                        </span>
+                                                        <span class="badge bg-secondary">
+                                                            <i class="far fa-clock me-1"></i> {{ exercise.estimated_time }} min
+                                                        </span>
+                                                    </div>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">
+                                                            Type: 
+                                                            <span class="badge bg-info">{{ exercise.exercise_type.name }}</span>
+                                                            <span class="badge bg-danger">Dyscalculie</span>
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer bg-white">
+                                                    <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="btn btn-primary w-100">
+                                                        <i class="fas fa-info-circle me-1"></i> Détails
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-calculator fa-4x text-muted mb-3"></i>
+                                    <h4>Aucun exercice de dyscalculie disponible</h4>
+                                    <p class="text-muted">Revenez plus tard pour découvrir de nouveaux exercices</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('exerciseSearch');
+        const searchButton = document.getElementById('searchButton');
+        const exerciseCards = document.querySelectorAll('.exercise-card-container');
+        
+        function filterExercises() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            exerciseCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const description = card.querySelector('.card-text').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        searchButton.addEventListener('click', filterExercises);
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                filterExercises();
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% comment %} 
+
+{% extends 'base.html' %}
+
+{% block title %}Exercices - App DYS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">
+            <i class="fas fa-tasks me-2 text-primary"></i>
+            Exercices
+        </h1>
+        <p class="lead text-muted">Découvre des exercices adaptés à tes besoins</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'dashboard:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+        </a>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2 text-primary"></i>
+            Filtrer les exercices
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="category" class="form-label">Catégorie</label>
+                <select name="category" id="category" class="form-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="disorder" class="form-label">Type de trouble</label>
+                <select name="disorder" id="disorder" class="form-select">
+                    <option value="">Tous les types</option>
+                    <option value="dyslexia" {% if selected_disorder == 'dyslexia' %}selected{% endif %}>Dyslexie</option>
+                    <option value="dyscalculia" {% if selected_disorder == 'dyscalculia' %}selected{% endif %}>Dyscalculie</option>
+                    <option value="both" {% if selected_disorder == 'both' %}selected{% endif %}>Les deux</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="difficulty" class="form-label">Difficulté</label>
+                <select name="difficulty" id="difficulty" class="form-select">
+                    <option value="">Toutes les difficultés</option>
+                    <option value="1" {% if selected_difficulty == '1' %}selected{% endif %}>Facile</option>
+                    <option value="2" {% if selected_difficulty == '2' %}selected{% endif %}>Moyen</option>
+                    <option value="3" {% if selected_difficulty == '3' %}selected{% endif %}>Difficile</option>
+                </select>
+            </div>
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Filtrer
+                </button>
+                <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-redo me-2"></i>Réinitialiser
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% if exercises %}
+        {% for exercise in exercises %}
+            <div class="col-md-4 mb-4">
+                <div class="card exercise-card h-100">
+                    {% if exercise.id in completed_exercises %}
+                        <div class="badge bg-success position-absolute top-0 end-0 m-2">Complété</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ exercise.title }}</h5>
+                        <p class="card-text">{{ exercise.exercise_type.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-{{ exercise.difficulty|yesno:'success,primary,danger' }}">
+                                {{ exercise.get_difficulty_display }}
+                            </span>
+                            <span class="text-muted">
+                                <i class="far fa-clock me-1"></i>{{ exercise.estimated_time }} min
+                            </span>
+                        </div>
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-star me-1 text-warning"></i>{{ exercise.points }} points à gagner
+                        </p>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-play me-2"></i>Commencer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                <h5>Aucun exercice trouvé</h5>
+                <p>Essayez de modifier vos filtres ou revenez plus tard pour de nouveaux exercices.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} {% endcomment %}

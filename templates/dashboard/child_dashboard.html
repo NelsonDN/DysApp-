@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mon tableau de bord - App DYS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+            Bonjour, {{ user.first_name|default:user.username }} !
+        </h1>
+        <p class="lead text-muted">Voici ton tableau de bord personnalisé</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary">
+            <i class="fas fa-play-circle me-2"></i>Commencer un exercice
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="dashboard-stat text-center">
+            <i class="fas fa-star"></i>
+            <h3>{{ child_profile.points }}</h3>
+            <p>Points gagnés</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="dashboard-stat text-center">
+            <i class="fas fa-trophy"></i>
+            <h3>{{ child_profile.level }}</h3>
+            <p>Niveau actuel</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="dashboard-stat text-center">
+            <i class="fas fa-tasks"></i>
+            <h3>{{ recent_attempts.count }}</h3>
+            <p>Exercices terminés</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-stat text-center">
+            <i class="fas fa-award"></i>
+            <h3>{{ achievements.count }}</h3>
+            <p>Récompenses</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mb-4 mb-md-0">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-rocket me-2 text-primary"></i>
+                    Exercices recommandés pour toi
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recommended_exercises %}
+                    <div class="row">
+                        {% for exercise in recommended_exercises %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card exercise-card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ exercise.title }}</h5>
+                                        <p class="card-text small">{{ exercise.exercise_type.name }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-{{ exercise.difficulty|yesno:'success,primary,danger' }}">
+                                                {{ exercise.get_difficulty_display }}
+                                            </span>
+                                            <span class="text-muted small">
+                                                <i class="far fa-clock me-1"></i>{{ exercise.estimated_time }} min
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white">
+                                        <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="btn btn-primary btn-sm w-100">
+                                            <i class="fas fa-play me-1"></i>Commencer
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                        <p>Aucun exercice recommandé pour le moment.</p>
+                        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary">
+                            Voir tous les exercices
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy me-2 text-warning"></i>
+                    Mes dernières récompenses
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if achievements %}
+                    <ul class="list-group list-group-flush">
+                        {% for achievement in achievements %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas {{ achievement.achievement.icon }} fa-2x text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ achievement.achievement.name }}</h6>
+                                    <p class="text-muted small mb-0">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        {{ achievement.date_earned|date:"d/m/Y" }}
+                                    </p>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'progress:achievements' %}" class="btn btn-outline-primary btn-sm">
+                            Voir toutes mes récompenses
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+                        <p>Tu n'as pas encore de récompenses.</p>
+                        <p class="small text-muted">Complète des exercices pour en gagner !</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2 text-info"></i>
+                    Mes derniers exercices
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_attempts %}
+                    <ul class="list-group list-group-flush">
+                        {% for attempt in recent_attempts %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ attempt.exercise.title }}</h6>
+                                    <p class="text-muted small mb-0">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        {{ attempt.completed_at|date:"d/m/Y H:i" }}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary rounded-pill">
+                                        {{ attempt.score }} / {{ attempt.max_score }}
+                                    </span>
+                                    <a href="{% url 'exercises:exercise_result' attempt.id %}" class="btn btn-sm btn-outline-secondary ms-2">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <p>Tu n'as pas encore fait d'exercices.</p>
+                        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary">
+                            Commencer maintenant
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2 text-success"></i>
+                    Ma progression
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if progress_records %}
+                    {% for record in progress_records %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0">{{ record.exercise_type.name }}</h6>
+                                <span class="badge bg-info">Niveau {{ record.skill_level }}</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ record.skill_level|multiply:10 }}%;" aria-valuenow="{{ record.skill_level }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            </div>
+                            <p class="text-muted small mt-1">{{ record.exercises_completed }} exercices complétés</p>
+                        </div>
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'progress:progress_report' %}" class="btn btn-outline-primary btn-sm">
+                            Voir mon rapport complet
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p>Pas encore de données de progression.</p>
+                        <p class="small text-muted">Complète des exercices pour voir ta progression !</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

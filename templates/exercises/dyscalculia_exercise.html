@@ -1,0 +1,1164 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exercise.title }} - App DYS{% endblock %}
+
+{% block extra_css %}
+<style>
+.question-container {
+        min-height: 300px;
+    }
+    
+    .answer-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .answer-option:hover {
+        border-color: #4E54C8;
+        transform: translateY(-3px);
+    }
+    
+    .answer-option.selected {
+        border-color: #4E54C8;
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .answer-option.correct {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.1);
+        animation: correctAnswer 0.5s ease-in-out;
+    }
+    
+    .answer-option.incorrect {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.1);
+        animation: incorrectAnswer 0.5s ease-in-out;
+    }
+    
+    .feedback-container {
+        min-height: 80px;
+    }
+    
+    #feedback-message {
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.1);
+        border-color: #28a745;
+        color: #155724;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-color: #dc3545;
+        color: #721c24;
+    }
+    
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-color: #ffc107;
+        color: #856404;
+    }
+    
+    @keyframes correctAnswer {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); background-color: rgba(40, 167, 69, 0.2); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes incorrectAnswer {
+        0% { transform: scale(1); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+        100% { transform: translateX(0); }
+    }
+    
+    .number-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .number-item {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .number-item:hover {
+        border-color: #4E54C8;
+        transform: translateY(-3px);
+    }
+    
+    .number-item.selected {
+        border-color: #4E54C8;
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .calculation-step {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    
+    .calculation-step.active {
+        border-left: 3px solid #4E54C8;
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .visual-counter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .counter-item {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #4E54C8;
+        transition: all 0.3s ease;
+    }
+    
+    .counter-item:hover {
+        transform: scale(1.1);
+    }
+    
+    .math-input {
+        width: 60px;
+        height: 40px;
+        text-align: center;
+        font-size: 1.2rem;
+        border: 2px solid #4E54C8;
+        border-radius: 5px;
+        margin: 0 5px;
+    }
+    
+    .math-operator {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 10px;
+    }
+    
+    .progress-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .progress-step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .progress-step.active {
+        background-color: #4E54C8;
+        color: white;
+    }
+    
+    .progress-step.completed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .progress-step::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: #e9ecef;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+        z-index: -1;
+    }
+    
+    .progress-step:last-child::after {
+        display: none;
+    }
+    
+    .progress-step.completed::after {
+        background-color: #28a745;
+    }
+    
+    /* Virtual manipulatives */
+    .abacus-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .abacus-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .abacus-label {
+        width: 30px;
+        text-align: right;
+        font-weight: bold;
+    }
+    
+    .abacus-beads {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .abacus-bead {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .abacus-bead:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .abacus-bead.active {
+        background-color: #4E54C8;
+        box-shadow: 0 0 10px rgba(78, 84, 200, 0.5);
+    }
+    
+    /* Number line */
+    .number-line {
+        position: relative;
+        height: 60px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+    
+    .number-line-track {
+        position: relative;
+        height: 4px;
+        background-color: #dee2e6;
+        margin: 20px 0;
+    }
+    
+    .number-line-markers {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        width: 100%;
+        top: -15px;
+    }
+    
+    .number-line-marker {
+        width: 2px;
+        height: 10px;
+        background-color: #6c757d;
+    }
+    
+    .number-line-labels {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        width: 100%;
+        bottom: -25px;
+    }
+    
+    .number-line-label {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+    
+    .number-line-pointer {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #4E54C8;
+        border-radius: 50%;
+        top: -8px;
+        transform: translateX(-50%);
+        cursor: pointer;
+        transition: left 0.3s ease;
+        box-shadow: 0 2px 6px rgba(78, 84, 200, 0.3);
+    }
+    
+    .number-line-pointer:hover {
+        transform: translateX(-50%) scale(1.1);
+    }
+    
+    #submit-answer:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    #next-question {
+        animation: slideInRight 0.3s ease-in-out;
+    }
+    
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">{{ exercise.title }}</h1>
+        <p class="lead text-muted">{{ exercise.exercise_type.name }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux exercices
+        </a>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                Instructions
+            </h5>
+            <div>
+                <span class="badge bg-{{ exercise.difficulty|yesno:'success,primary,danger' }} me-2">
+                    {{ exercise.get_difficulty_display }}
+                </span>
+                <span class="text-muted">
+                    <i class="far fa-clock me-1"></i>{{ exercise.estimated_time }} min
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            {{ exercise.instructions|safe }}
+        </div>
+        <div class="text-center">
+            <button id="start-exercise" class="btn btn-primary btn-lg">
+                <i class="fas fa-play me-2"></i>Commencer l'exercice
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="exercise-container" class="card shadow mb-4" style="display: none;">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-question-circle me-2 text-primary"></i>
+                <span id="question-title">Question</span>
+            </h5>
+            <div>
+                <span class="badge bg-primary" id="question-counter">1/5</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="progress-indicator" class="progress-indicator">
+            <!-- Progress steps will be added dynamically -->
+        </div>
+        
+        <div class="question-container mb-4">
+            <div id="question-text" class="mb-4"></div>
+            
+            <div id="question-image-container" class="text-center mb-4" style="display: none;">
+                <img id="question-image" src="/placeholder.svg" alt="Question image" class="img-fluid rounded">
+            </div>
+            
+            <div id="visual-tools-container" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Boulier virtuel
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="abacus" class="abacus-container">
+                                    <div class="abacus-row">
+                                        <div class="abacus-label">100</div>
+                                        <div class="abacus-beads">
+                                            <div class="abacus-bead" data-value="100"></div>
+                                            <div class="abacus-bead" data-value="100"></div>
+                                            <div class="abacus-bead" data-value="100"></div>
+                                            <div class="abacus-bead" data-value="100"></div>
+                                            <div class="abacus-bead" data-value="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="abacus-row">
+                                        <div class="abacus-label">10</div>
+                                        <div class="abacus-beads">
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                            <div class="abacus-bead" data-value="10"></div>
+                                        </div>
+                                    </div>
+                                    <div class="abacus-row">
+                                        <div class="abacus-label">1</div>
+                                        <div class="abacus-beads">
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                            <div class="abacus-bead" data-value="1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button id="reset-abacus" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-redo me-1"></i>Réinitialiser
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-ruler-horizontal me-2"></i>
+                                    Droite numérique
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="number-line" class="number-line">
+                                    <div class="number-line-track">
+                                        <div class="number-line-markers">
+                                            <!-- Markers will be added dynamically -->
+                                        </div>
+                                        <div class="number-line-labels">
+                                            <!-- Labels will be added dynamically -->
+                                        </div>
+                                        <div id="number-line-pointer" class="number-line-pointer" style="left: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <span id="number-line-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="answers-container" class="mt-4">
+                <!-- Answer options will be added dynamically -->
+            </div>
+            
+            <div id="calculation-container" style="display: none;">
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>
+                            Étapes de calcul
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="calculation-steps">
+                            <!-- Calculation steps will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="math-input-container" style="display: none;">
+                <div class="text-center mb-3">
+                    <div class="d-inline-flex align-items-center">
+                        <span id="math-input-left"></span>
+                        <span class="math-operator" id="math-operator"></span>
+                        <span id="math-input-right"></span>
+                        <span class="math-operator">=</span>
+                        <input type="number" id="math-result" class="math-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feedback-container mb-4">
+            <div id="feedback-message" class="alert" style="display: none;"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <button id="prev-question" class="btn btn-outline-secondary" disabled>
+                <i class="fas fa-arrow-left me-2"></i>Précédent
+            </button>
+            <button id="submit-answer" class="btn btn-primary">
+                Valider<i class="fas fa-check ms-2"></i>
+            </button>
+            <button id="next-question" class="btn btn-primary" style="display: none;">
+                Suivant<i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="exercise-complete" class="card shadow" style="display: none;">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            Exercice terminé !
+        </h5>
+    </div>
+    <div class="card-body text-center">
+        <i class="fas fa-trophy fa-5x text-warning mb-4"></i>
+        <h4>Félicitations !</h4>
+        <p class="lead">Tu as terminé l'exercice avec succès.</p>
+        <div class="mb-4">
+            <h5>Ton score : <span id="final-score">0</span> / <span id="max-score">0</span></h5>
+            <div class="progress mt-2">
+                <div id="score-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a id="view-results" href="#" class="btn btn-primary btn-lg">
+                <i class="fas fa-chart-bar me-2"></i>Voir les résultats détaillés
+            </a>
+            <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-list me-2"></i>Retour aux exercices
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Configuration de jQuery pour inclure le CSRF token dans toutes les requêtes AJAX
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+        }
+    }
+});
+
+// Fonction pour récupérer le CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+    $(document).ready(function() {
+        // Variables
+        const attemptId = {{ attempt.id }};
+        let currentQuestionIndex = 0;
+        let totalQuestions = 0;
+        let questions = [];
+        let selectedAnswer = null;
+        let score = 0;
+        
+        // Initialize number line
+        initNumberLine(0, 20);
+        
+        // Start exercise button
+        $('#start-exercise').click(function() {
+            $(this).prop('disabled', true);
+            $('#exercise-container').show();
+            loadQuestion(0);
+        });
+        
+        // 1. CORRECTION: Fonction loadQuestion - Réinitialiser l'état des boutons
+        function loadQuestion(index) {
+            // Show loading state
+            $('#question-text').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Chargement de la question...</p></div>');
+            $('#answers-container').empty();
+            
+            // CORRECTION: Réinitialiser l'état des boutons
+            $('#submit-answer').show().prop('disabled', false);
+            $('#next-question').hide();
+            $('#feedback-message').hide();
+            
+            // Fetch question data
+            $.ajax({
+                url: `/exercises/attempt/${attemptId}/question/${index}/`,
+                method: 'GET',
+                success: function(data) {
+                    if (data.type === 'error') {
+                        showFeedback(data.message, 'danger');
+                        return;
+                    }
+                    
+                    // Store questions data
+                    questions = data;
+                    totalQuestions = data.total_questions;
+                    currentQuestionIndex = data.current_index;
+                    
+                    // CORRECTION: Reset selected answer pour chaque nouvelle question
+                    selectedAnswer = null;
+                    
+                    // Update progress indicator
+                    updateProgressIndicator();
+                    
+                    // Update question counter
+                    $('#question-counter').text(`${currentQuestionIndex + 1}/${totalQuestions}`);
+                    
+                    // Display question
+                    $('#question-text').html(data.text);
+                    
+                    // Handle question image
+                    if (data.image) {
+                        $('#question-image').attr('src', data.image);
+                        $('#question-image-container').show();
+                    } else {
+                        $('#question-image-container').hide();
+                    }
+                    
+                    // Display answers based on question type
+                    switch (data.question_type) {
+                        case 'multiple_choice':
+                            renderMultipleChoice(data.answers);
+                            break;
+                        case 'true_false':
+                            renderTrueFalse();
+                            break;
+                        case 'matching':
+                            renderMatching(data.answers);
+                            break;
+                        case 'fill_blank':
+                            renderMathInput(data);
+                            break;
+                        default:
+                            renderMultipleChoice(data.answers);
+                    }
+                    
+                    // Handle navigation buttons
+                    $('#prev-question').prop('disabled', currentQuestionIndex === 0);
+                    
+                    // CORRECTION: Gérer les questions déjà répondues
+                    if (data.already_answered) {
+                        if (data.previous_answer) {
+                            selectedAnswer = data.previous_answer;
+                            $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('selected');
+                            $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+                            $(`.answer-option[data-id="${selectedAnswer}"] .fa-circle`).removeClass('fa-circle').addClass('fa-check-circle');
+                        }
+                        
+                        // Afficher le feedback approprié
+                        if (data.was_correct) {
+                            showFeedback('Bonne réponse !', 'success');
+                            $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('correct');
+                        } else {
+                            showFeedback('Réponse incorrecte.', 'danger');
+                            $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('incorrect');
+                        }
+                        
+                        $('#submit-answer').hide();
+                        $('#next-question').show();
+                    }
+                },
+                error: function() {
+                    showFeedback('Erreur lors du chargement de la question. Veuillez réessayer.', 'danger');
+                }
+            });
+        }
+        
+        // Update progress indicator
+        function updateProgressIndicator() {
+            const container = $('#progress-indicator');
+            container.empty();
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const step = $('<div class="progress-step"></div>').text(i + 1);
+                
+                if (i < currentQuestionIndex) {
+                    step.addClass('completed');
+                } else if (i === currentQuestionIndex) {
+                    step.addClass('active');
+                }
+                
+                container.append(step);
+            }
+        }
+        
+        // Render multiple choice answers
+        function renderMultipleChoice(answers) {
+            const container = $('#answers-container');
+            container.empty();
+            
+            answers.forEach(answer => {
+                const option = $(`
+                    <div class="answer-option" data-id="${answer.id}">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="far fa-circle"></i>
+                            </div>
+                            <div>
+                                ${answer.text}
+                                ${answer.image ? `<img src="${answer.image}" alt="Option image" class="img-fluid mt-2 rounded">` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                option.click(function() {
+                    $('.answer-option').removeClass('selected');
+                    $(this).addClass('selected');
+                    $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+                    $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+                    selectedAnswer = answer.id;
+                });
+                
+                container.append(option);
+            });
+        }
+        
+        // Render true/false answers
+        function renderTrueFalse() {
+            const container = $('#answers-container');
+            container.empty();
+            
+            const trueOption = $(`
+                <div class="answer-option" data-value="true">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div>
+                            Vrai
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            const falseOption = $(`
+                <div class="answer-option" data-value="false">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div>
+                            Faux
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            trueOption.click(function() {
+                $('.answer-option').removeClass('selected');
+                $(this).addClass('selected');
+                $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+                $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+                selectedAnswer = 'true';
+            });
+            
+            falseOption.click(function() {
+                $('.answer-option').removeClass('selected');
+                $(this).addClass('selected');
+                $('.answer-option .fa-circle').removeClass('fa-check-circle').addClass('fa-circle');
+                $(this).find('.fa-circle').removeClass('fa-circle').addClass('fa-check-circle');
+                selectedAnswer = 'false';
+            });
+            
+            container.append(trueOption);
+            container.append(falseOption);
+        }
+        
+        // Render matching answers
+        function renderMatching(answers) {
+            // Similar to dyslexia exercise
+        }
+        
+        // Render math input
+        // 8. CORRECTION: Render math input avec meilleure gestion
+        function renderMathInput(data) {
+            $('#math-input-container').show();
+            $('#answers-container').hide(); // Cacher les autres types de réponses
+            
+            // Extract numbers from question text
+            const questionText = data.text;
+            const numbers = questionText.match(/\d+/g);
+            
+            if (numbers && numbers.length >= 2) {
+                $('#math-input-left').text(numbers[0]);
+                $('#math-input-right').text(numbers[1]);
+                
+                // Determine operator
+                if (questionText.includes('+') || questionText.toLowerCase().includes('addition')) {
+                    $('#math-operator').text('+');
+                } else if (questionText.includes('-') || questionText.toLowerCase().includes('soustraction')) {
+                    $('#math-operator').text('-');
+                } else if (questionText.includes('×') || questionText.includes('*') || questionText.toLowerCase().includes('multiplication')) {
+                    $('#math-operator').text('×');
+                } else if (questionText.includes('÷') || questionText.includes('/') || questionText.toLowerCase().includes('division')) {
+                    $('#math-operator').text('÷');
+                }
+                
+                // Clear and focus on input
+                $('#math-result').val('').focus();
+                
+                // CORRECTION: Mettre à jour selectedAnswer quand l'utilisateur tape
+                $('#math-result').off('input').on('input', function() {
+                    selectedAnswer = $(this).val() || null;
+                    console.log('Math input changed:', selectedAnswer);
+                });
+            }
+        }
+        
+        // Initialize number line
+        // 6. CORRECTION: Initialisation de la droite numérique avec les bonnes valeurs
+        function initNumberLine(min, max) {
+            const numberLine = $('#number-line');
+            const markers = $('.number-line-markers');
+            const labels = $('.number-line-labels');
+            
+            markers.empty();
+            labels.empty();
+            
+            const range = max - min;
+            const steps = 10;
+            
+            for (let i = 0; i <= steps; i++) {
+                const percent = (i / steps) * 100;
+                const value = Math.round(min + (range * (i / steps)));
+                
+                const marker = $('<div class="number-line-marker"></div>');
+                marker.css('left', `${percent}%`);
+                markers.append(marker);
+                
+                const label = $('<div class="number-line-label"></div>');
+                label.text(value);
+                label.css('left', `${percent}%`);
+                labels.append(label);
+            }
+            
+            // Make number line interactive
+            numberLine.off('click').on('click', function(e) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                const value = Math.round(min + (range * (percent / 100)));
+                
+                $('#number-line-pointer').css('left', `${percent}%`);
+                $('#number-line-value').text(value);
+                
+                // CORRECTION: Synchroniser le boulier avec la droite numérique
+                updateAbacusFromValue(value);
+            });
+        }
+        
+        // 7. NOUVELLE FONCTION: Mettre à jour le boulier depuis une valeur
+        function updateAbacusFromValue(value) {
+            // Reset abacus
+            $('.abacus-bead').removeClass('active');
+            
+            let remaining = value;
+            
+            // Activer les perles de 100
+            const hundreds = Math.floor(remaining / 100);
+            $('.abacus-bead[data-value="100"]').slice(0, Math.min(hundreds, 5)).addClass('active');
+            remaining -= hundreds * 100;
+            
+            // Activer les perles de 10
+            const tens = Math.floor(remaining / 10);
+            $('.abacus-bead[data-value="10"]').slice(0, Math.min(tens, 9)).addClass('active');
+            remaining -= tens * 10;
+            
+            // Activer les perles de 1
+            const ones = remaining;
+            $('.abacus-bead[data-value="1"]').slice(0, Math.min(ones, 9)).addClass('active');
+        }
+
+        
+        // Make abacus interactive
+        // 2. CORRECTION: Synchronisation du boulier avec la droite numérique
+        $('.abacus-bead').click(function() {
+            $(this).toggleClass('active');
+            
+            // Calculate total
+            let total = 0;
+            $('.abacus-bead.active').each(function() {
+                total += parseInt($(this).data('value'));
+            });
+            
+            // CORRECTION: Synchroniser correctement avec la droite numérique
+            // Supposons que la droite numérique va de 0 à 200 (max possible avec le boulier)
+            const maxValue = 200; // 5*100 + 9*10 + 9*1 = 599, mais limitons à 200 pour la démo
+            const percent = Math.min((total / maxValue) * 100, 100);
+            $('#number-line-pointer').css('left', `${percent}%`);
+            $('#number-line-value').text(total);
+        });
+        
+        // Reset abacus
+        $('#reset-abacus').click(function() {
+            $('.abacus-bead').removeClass('active');
+            $('#number-line-pointer').css('left', '0%');
+            $('#number-line-value').text('0');
+        });
+        
+        // Submit answer
+        // Submit answer
+        // 4. CORRECTION: Submit answer avec meilleur debugging
+        $('#submit-answer').click(function() {
+            console.log('Submit button clicked');
+            console.log('Current question type:', questions.question_type);
+            console.log('Selected answer:', selectedAnswer);
+            
+            // Validate answer
+            if (!validateAnswer()) {
+                showFeedback('Veuillez sélectionner une réponse.', 'warning');
+                return;
+            }
+            
+            // Disable submit button
+            $(this).prop('disabled', true);
+            
+            // Prepare data
+            const data = {
+                question_id: questions.id,
+                answer_id: selectedAnswer,
+                text_response: null
+            };
+            
+            // Get answer based on question type
+            if (questions.question_type === 'fill_blank') {
+                data.text_response = $('#math-result').val();
+                data.answer_id = null;
+            }
+            
+            console.log('Sending data:', data);
+            
+            // Add CSRF token
+            const csrftoken = getCookie('csrftoken');
+            
+            // Submit answer
+            $.ajax({
+                url: `/exercises/attempt/${attemptId}/submit/`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log('Response received:', response);
+                    
+                    // Update score
+                    score = response.score;
+                    
+                    // Show feedback avec animation
+                    if (response.is_correct) {
+                        showFeedback(response.feedback || 'Bonne réponse ! 🎉', 'success');
+                        
+                        // Mark selected answer as correct
+                        if (selectedAnswer) {
+                            $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('correct');
+                        }
+                    } else {
+                        showFeedback(response.feedback || 'Réponse incorrecte. 😔', 'danger');
+                        
+                        // Mark selected answer as incorrect
+                        if (selectedAnswer) {
+                            $(`.answer-option[data-id="${selectedAnswer}"]`).addClass('incorrect');
+                        }
+                    }
+                    
+                    // Show next button
+                    $('#submit-answer').hide();
+                    $('#next-question').show();
+                    
+                    // If exercise is completed
+                    if (response.completed) {
+                        $('#next-question').text('Terminer').removeClass('btn-primary').addClass('btn-success');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erreur AJAX:', error);
+                    console.error('Response:', xhr.responseText);
+                    showFeedback('Erreur lors de la soumission de la réponse. Veuillez réessayer.', 'danger');
+                    $('#submit-answer').prop('disabled', false);
+                }
+            });
+        });
+
+
+        // Complete exercise
+        function completeExercise() {
+            // Show completion screen
+            $('#exercise-container').hide();
+            $('#exercise-complete').show();
+            
+            // Update score
+            $('#final-score').text(score);
+            $('#max-score').text(questions.total_questions * 10);
+            
+            const percentage = (score / (questions.total_questions * 10)) * 100;
+            $('#score-progress').css('width', `${percentage}%`).attr('aria-valuenow', percentage);
+            
+            // Set result URL
+            $('#view-results').attr('href', `/exercises/result/${attemptId}/`);
+            
+            // Submit completion to server
+            const csrftoken = getCookie('csrftoken');
+            
+            $.ajax({
+                url: `/exercises/attempt/${attemptId}/submit/`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                data: JSON.stringify({
+                    type: 'complete_exercise'
+                }),
+                success: function(response) {
+                    console.log('Exercise completed successfully');
+                    if (response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error completing exercise:', error);
+                }
+            });
+        }
+        
+        // Validate answer
+        // 3. CORRECTION: Fonction de validation des réponses
+        function validateAnswer() {
+            console.log('Validating answer, question type:', questions.question_type);
+            console.log('Selected answer:', selectedAnswer);
+            
+            switch (questions.question_type) {
+                case 'multiple_choice':
+                case 'true_false':
+                    const isValid = selectedAnswer !== null;
+                    console.log('Multiple choice validation:', isValid);
+                    return isValid;
+                case 'fill_blank':
+                    const mathResult = $('#math-result').val();
+                    const isValidMath = mathResult && mathResult.trim() !== '';
+                    console.log('Fill blank validation:', isValidMath, 'Value:', mathResult);
+                    return isValidMath;
+                case 'matching':
+                    return true; // À implémenter selon vos besoins
+                default:
+                    return selectedAnswer !== null;
+            }
+        }
+        
+        // Show feedback message
+        // 5. CORRECTION: Amélioration de la fonction showFeedback
+        function showFeedback(message, type) {
+            const feedback = $('#feedback-message');
+            feedback.removeClass('alert-success alert-danger alert-warning alert-info')
+                .addClass(`alert-${type}`);
+            feedback.html(`<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'exclamation-circle'} me-2"></i>${message}`);
+            feedback.fadeIn();
+            
+            // Auto-hide warning messages after 5 seconds
+            if (type === 'warning') {
+                setTimeout(() => {
+                    feedback.fadeOut();
+                }, 5000);
+            }
+        }
+        
+        // Previous question button
+        $('#prev-question').click(function() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        });
+        
+        // Next question button
+        $('#next-question').click(function() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                // Complete exercise
+                completeExercise();
+            }
+        });
+        
+        // Complete exercise
+        function completeExercise() {
+            // Show completion screen
+            $('#exercise-container').hide();
+            $('#exercise-complete').show();
+            
+            // Update score
+            $('#final-score').text(score);
+            $('#max-score').text(questions.total_questions * 10);
+            
+            const percentage = (score / (questions.total_questions * 10)) * 100;
+            $('#score-progress').css('width', `${percentage}%`).attr('aria-valuenow', percentage);
+            
+            // Set result URL
+            $('#view-results').attr('href', `/exercises/result/${attemptId}/`);
+            
+            // Submit completion to server
+            $.ajax({
+                url: `/exercises/attempt/${attemptId}/submit/`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    type: 'complete_exercise'
+                }),
+                success: function(response) {
+                    console.log('Exercise completed successfully');
+                },
+                error: function() {
+                    console.error('Error completing exercise');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

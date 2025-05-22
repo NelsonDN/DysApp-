@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Tableau de bord enseignant - App DYS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">
+            <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>
+            Bonjour, {{ user.first_name|default:user.username }} !
+        </h1>
+        <p class="lead text-muted">Suivez la progression de vos élèves</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'accounts:students_list' %}" class="btn btn-primary">
+            <i class="fas fa-user-graduate me-2"></i>Gérer mes élèves
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                <h3>{{ total_students }}</h3>
+                <p class="mb-0">Élèves</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+                <h3>{{ active_students }}</h3>
+                <p class="mb-0">Élèves actifs (7j)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-tasks fa-3x text-info mb-3"></i>
+                <h3>{{ total_attempts }}</h3>
+                <p class="mb-0">Exercices complétés</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                <h3>{{ avg_score|floatformat:1 }}%</h3>
+                <p class="mb-0">Score moyen</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-graduate me-2 text-primary"></i>
+                    Mes élèves
+                </h5>
+                <a href="{% url 'accounts:students_list' %}" class="btn btn-sm btn-outline-primary">
+                    Voir tous
+                </a>
+            </div>
+            <div class="card-body">
+                {% if students_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Niveau scolaire</th>
+                                    <th>Troubles</th>
+                                    <th>Exercices</th>
+                                    <th>Score moyen</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stats in students_stats %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-primary text-white me-2">
+                                                    {{ stats.student.first_name|first|upper }}{{ stats.student.last_name|first|upper }}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ stats.student.get_full_name|default:stats.student.username }}</strong>
+                                                    <div class="text-muted small">{{ stats.student.email }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                {{ stats.profile.get_school_level_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if stats.profile.has_dyslexia %}
+                                                <span class="badge bg-warning me-1">Dyslexie</span>
+                                            {% endif %}
+                                            {% if stats.profile.has_dyscalculia %}
+                                                <span class="badge bg-danger">Dyscalculie</span>
+                                            {% endif %}
+                                            {% if not stats.profile.has_dyslexia and not stats.profile.has_dyscalculia %}
+                                                <span class="badge bg-secondary">Aucun</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ stats.total_attempts }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-{{ stats.avg_score|divisibleby:20|yesno:'danger,warning,info,success,primary' }}" role="progressbar" style="width: {{ stats.avg_score }}%;" aria-valuenow="{{ stats.avg_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="text-center small mt-1">{{ stats.avg_score|floatformat:1 }}%</div>
+                                        </td>
+                                        {% comment %} <td>
+                                            <a href="{% url 'progress:student_progress' stats.student.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-chart-line"></i>
+                                            </a>
+                                        </td> {% endcomment %}
+                                        <td>
+                                            <a href="{% url 'progress:child_progress' stats.student.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-chart-line"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                        <p>Vous n'avez pas encore d'élèves.</p>
+                        <a href="{% url 'accounts:add_student' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Ajouter un élève
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2 text-success"></i>
+                    Progression par type d'exercice
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if students_stats %}
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="exerciseTypeChart"></canvas>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var ctx = document.getElementById('exerciseTypeChart').getContext('2d');
+                            var chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['Lecture', 'Écriture', 'Nombres', 'Calcul', 'Problèmes'],
+                                    datasets: [{
+                                        label: 'Exercices complétés',
+                                        data: [25, 18, 30, 22, 15],
+                                        backgroundColor: [
+                                            'rgba(78, 84, 200, 0.6)',
+                                            'rgba(255, 107, 107, 0.6)',
+                                            'rgba(26, 188, 156, 0.6)',
+                                            'rgba(243, 156, 18, 0.6)',
+                                            'rgba(155, 89, 182, 0.6)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(78, 84, 200, 1)',
+                                            'rgba(255, 107, 107, 1)',
+                                            'rgba(26, 188, 156, 1)',
+                                            'rgba(243, 156, 18, 1)',
+                                            'rgba(155, 89, 182, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p>Pas de données disponibles.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-info"></i>
+                    Exercices récemment complétés
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if students_stats %}
+                    <ul class="list-group list-group-flush">
+                        {% for stats in students_stats %}
+                            {% for attempt in stats.recent_attempts %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ stats.student.get_full_name|default:stats.student.username }}</strong>
+                                            <p class="mb-0 text-muted">{{ attempt.exercise.title }}</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-{{ attempt.score|divisibleby:20|yesno:'danger,warning,info,success,primary' }}">
+                                                {{ attempt.score }} / {{ attempt.max_score }}
+                                            </span>
+                                            <div class="text-muted small">{{ attempt.completed_at|date:"d/m/Y H:i" }}</div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <p>Aucun exercice complété récemment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Mes élèves - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-user-graduate me-2 text-primary"></i>
+                Mes élèves
+            </h1>
+            <p class="lead text-muted">Gérez vos élèves et suivez leur progression</p>
+        </div>
+        {% comment %} <div class="col-md-4 text-md-end">
+            <a href="{% url 'accounts:add_student' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un élève
+            </a>
+        </div> {% endcomment %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Liste de mes élèves</h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Niveau scolaire</th>
+                                        <th>Troubles</th>
+                                        <th>Niveau</th>
+                                        <th>Points</th>
+                                        <th>Dernière activité</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white me-2">
+                                                        {{ student.username|first|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div>{{ student.get_full_name|default:student.username }}</div>
+                                                        <small class="text-muted">{{ student.username }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ student.child_profile.get_school_level_display }}</td>
+                                            <td>
+                                                {% if student.child_profile.has_dyslexia %}
+                                                    <span class="badge bg-warning">Dyslexie</span>
+                                                {% endif %}
+                                                {% if student.child_profile.has_dyscalculia %}
+                                                    <span class="badge bg-danger">Dyscalculie</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Niveau {{ student.child_profile.level }}</span>
+                                            </td>
+                                            <td>{{ student.child_profile.points }}</td>
+                                            <td>
+                                                {% if student.last_login %}
+                                                    {{ student.last_login|date:"d/m/Y H:i" }}
+                                                {% else %}
+                                                    Jamais connecté
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'progress:child_progress' student.id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removeStudentModal{{ student.id }}">
+                                                        <i class="fas fa-user-minus"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Modal de suppression -->
+                                                <div class="modal fade" id="removeStudentModal{{ student.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Confirmation de retrait</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Êtes-vous sûr de vouloir retirer <strong>{{ student.username }}</strong> de votre liste d'élèves ?</p>
+                                                                <p>Vous ne pourrez plus suivre sa progression, mais ses données ne seront pas supprimées.</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                <form method="post" action="{% url 'accounts:remove_student' student.id %}">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-danger">Retirer</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-graduate fa-4x text-muted mb-3"></i>
+                            <h4>Vous n'avez pas encore d'élèves</h4>
+                            <p class="text-muted">Ajoutez des élèves pour commencer à suivre leur progression</p>
+                            {% comment %} <a href="{% url 'accounts:add_student' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i>Ajouter un élève
+                            </a> {% endcomment %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

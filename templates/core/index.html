@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - App DYS{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6 mb-4 mb-lg-0">
+        <h1 class="display-4 fw-bold mb-3">Apprendre sans limites</h1>
+        <p class="lead mb-4">Une application éducative conçue spécialement pour les enfants atteints de dyslexie et de dyscalculie. Apprenez à votre rythme avec des exercices adaptés et ludiques.</p>
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4 me-md-2">
+                <i class="fas fa-user-plus me-2"></i>Commencer gratuitement
+            </a>
+            <a href="{% url 'core:features' %}" class="btn btn-outline-secondary btn-lg px-4">
+                <i class="fas fa-info-circle me-2"></i>En savoir plus
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <img src="https://via.placeholder.com/600x400" alt="Enfants apprenant" class="img-fluid rounded shadow float-animation">
+    </div>
+</div>
+
+<div class="row py-5">
+    <div class="col-12 text-center mb-5">
+        <h2 class="fw-bold">Comment ça marche ?</h2>
+        <p class="lead">Une approche simple et efficace pour aider les enfants à surmonter leurs difficultés</p>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user-check fa-2x"></i>
+                </div>
+                <h4 class="fw-bold">1. Créez un profil</h4>
+                <p>Inscrivez-vous et créez un profil adapté aux besoins spécifiques de votre enfant.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-tasks fa-2x"></i>
+                </div>
+                <h4 class="fw-bold">2. Accédez aux exercices</h4>
+                <p>Découvrez une variété d'exercices spécialement conçus pour la dyslexie et la dyscalculie.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <h4 class="fw-bold">3. Suivez les progrès</h4>
+                <p>Visualisez les progrès réalisés et recevez des rapports détaillés sur les performances.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row py-5 bg-light rounded-3 shadow-sm">
+    <div class="col-12 text-center mb-5">
+        <h2 class="fw-bold">Nos fonctionnalités</h2>
+        <p class="lead">Des outils adaptés pour un apprentissage efficace</p>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <i class="fas fa-book-reader fa-3x text-primary mb-3"></i>
+                <h4 class="fw-bold">Exercices de lecture</h4>
+                <p>Des exercices adaptés pour améliorer la reconnaissance des lettres et la lecture de mots.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <i class="fas fa-calculator fa-3x text-success mb-3"></i>
+                <h4 class="fw-bold">Exercices de calcul</h4>
+                <p>Des activités ludiques pour renforcer la compréhension des nombres et des opérations.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h4 class="fw-bold">Système de récompenses</h4>
+                <p>Des badges et des récompenses pour motiver et encourager les progrès.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <i class="fas fa-chart-pie fa-3x text-danger mb-3"></i>
+                <h4 class="fw-bold">Rapports détaillés</h4>
+                <p>Suivez les progrès avec des rapports détaillés et des statistiques personnalisées.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row py-5">
+    <div class="col-12 text-center mb-5">
+        <h2 class="fw-bold">Témoignages</h2>
+        <p class="lead">Ce que disent nos utilisateurs</p>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded-circle me-3">
+                    <div>
+                        <h5 class="mb-0">Sophie Martin</h5>
+                        <p class="text-muted mb-0">Parent</p>
+                    </div>
+                </div>
+                <p class="mb-0">"Ma fille a fait d'énormes progrès depuis qu'elle utilise cette application. Les exercices sont adaptés à ses besoins et elle adore gagner des badges !"</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded-circle me-3">
+                    <div>
+                        <h5 class="mb-0">Thomas Dubois</h5>
+                        <p class="text-muted mb-0">Enseignant spécialisé</p>
+                    </div>
+                </div>
+                <p class="mb-0">"Un outil précieux pour mon travail avec les élèves dyslexiques. Les rapports détaillés me permettent de suivre leurs progrès et d'adapter mes méthodes."</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded-circle me-3">
+                    <div>
+                        <h5 class="mb-0">Lucas, 9 ans</h5>
+                        <p class="text-muted mb-0">Élève</p>
+                    </div>
+                </div>
+                <p class="mb-0">"J'aime beaucoup les jeux et les exercices. C'est plus facile d'apprendre et je suis content quand je gagne des points et des badges !"</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row py-5">
+    <div class="col-12">
+        <div class="card border-0 bg-primary text-white shadow">
+            <div class="card-body p-5 text-center">
+                <h2 class="fw-bold mb-3">Prêt à commencer ?</h2>
+                <p class="lead mb-4">Rejoignez notre communauté et aidez votre enfant à progresser dès aujourd'hui.</p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5">
+                    <i class="fas fa-user-plus me-2"></i>S'inscrire gratuitement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

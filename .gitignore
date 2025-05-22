@@ -1,0 +1,21 @@
+# Ignore the virtual environment directory
+venv/
+env/
+
+# Python files
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# VSCode settings (si tu utilises)
+.vscode/
+
+# Django static and media files
+/staticfiles/
+/media/
+
+# Env files
+.env
+
+# MacOS
+.DS_Store

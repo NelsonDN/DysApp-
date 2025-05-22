@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Résultat de l'exercice - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exercises:exercise_list' %}">Exercices</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'exercises:exercise_detail' attempt.exercise.id %}">{{ attempt.exercise.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Résultat</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>
+                Résultat de l'exercice : {{ attempt.exercise.title }}
+            </h1>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title mb-4">Votre score</h5>
+                            <div class="display-1 mb-3 {% if attempt.score_percentage >= 80 %}text-success{% elif attempt.score_percentage >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                                {{ attempt.score_percentage }}%
+                            </div>
+                            <p class="lead">{{ attempt.score }} points sur {{ attempt.max_score }}</p>
+                            
+                            <div class="mt-4">
+                                <p>
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Complété le {{ attempt.completed_at|date:"d/m/Y à H:i" }}
+                                </p>
+                                <p>
+                                    <i class="fas fa-clock me-2"></i>
+                                    Temps passé : 
+                                    {% if attempt.completed_at and attempt.started_at %}
+                                        {{ attempt.completed_at|timeuntil:attempt.started_at }}
+                                    {% else %}
+                                        Non disponible
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Statistiques</h5>
+                            
+                            <div class="mb-4">
+                                <h6>Réponses correctes</h6>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                        style="width: {{ correct_percentage }}%;" 
+                                        aria-valuenow="{{ correct_percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ correct_count }} / {{ question_attempts.count }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Réponses incorrectes</h6>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" 
+                                        style="width: {{ incorrect_percentage }}%;" 
+                                        aria-valuenow="{{ incorrect_percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ incorrect_count }} / {{ question_attempts.count }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if achievements %}
+                                <h6>Récompenses obtenues</h6>
+                                <ul class="list-group">
+                                    {% for achievement in achievements %}
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <i class="fas {{ achievement.icon }} text-warning me-3"></i>
+                                            <div>
+                                                <strong>{{ achievement.name }}</strong>
+                                                <p class="mb-0 small">{{ achievement.description }}</p>
+                                            </div>
+                                            <span class="badge bg-primary ms-auto">+{{ achievement.points }} pts</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mb-3">Détail des questions</h5>
+            <div class="accordion" id="questionAccordion">
+                {% for qa in question_attempts %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ qa.id }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ qa.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ qa.id }}">
+                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                    <div>Question {{ forloop.counter }} : {{ qa.question.text|truncatechars:50 }}</div>
+                                    {% if qa.is_correct %}
+                                        <span class="badge bg-success">Correct</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Incorrect</span>
+                                    {% endif %}
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ qa.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ qa.id }}" data-bs-parent="#questionAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-3">
+                                    <strong>Question :</strong>
+                                    <p>{{ qa.question.text }}</p>
+                                </div>
+                                
+                                {% if qa.question.question_type == 'multiple_choice' or qa.question.question_type == 'true_false' %}
+                                    <div class="mb-3">
+                                        <strong>Votre réponse :</strong>
+                                        <p>
+                                            {% if qa.answer %}
+                                                {{ qa.answer.text }}
+                                                {% if qa.is_correct %}
+                                                    <i class="fas fa-check-circle text-success ms-2"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times-circle text-danger ms-2"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <em>Aucune réponse</em>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    
+                                    {% if not qa.is_correct %}
+                                        <div class="mb-3">
+                                            <strong>Réponse correcte :</strong>
+                                            <p>
+                                                {% for answer in qa.question.answers.all %}
+                                                    {% if answer.is_correct %}
+                                                        {{ answer.text }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                {% elif qa.question.question_type == 'fill_blank' %}
+                                    <div class="mb-3">
+                                        <strong>Votre réponse :</strong>
+                                        <p>
+                                            {% if qa.text_response %}
+                                                {{ qa.text_response }}
+                                                {% if qa.is_correct %}
+                                                    <i class="fas fa-check-circle text-success ms-2"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times-circle text-danger ms-2"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <em>Aucune réponse</em>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    
+                                    {% if not qa.is_correct %}
+                                        <div class="mb-3">
+                                            <strong>Réponse correcte :</strong>
+                                            <p>
+                                                {% for answer in qa.question.answers.all %}
+                                                    {% if answer.is_correct %}
+                                                        {{ answer.text }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% if qa.question.explanation %}
+                                    <div class="alert alert-info">
+                                        <strong>Explication :</strong>
+                                        <p class="mb-0">{{ qa.question.explanation }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'exercises:exercise_detail' attempt.exercise.id %}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à l'exercice
+                </a>
+                <a href="{% url 'exercises:exercise_detail' attempt.exercise.id %}" class="btn btn-primary">
+                    <i class="fas fa-redo me-1"></i> Refaire l'exercice
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+
+{% block title %}Résultats - {{ attempt.exercise.title }} - App DYS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">
+            <i class="fas fa-chart-bar me-2 text-primary"></i>
+            Résultats de l'exercice
+        </h1>
+        <p class="lead text-muted">{{ attempt.exercise.title }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux exercices
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Résumé
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                                <h5>Score</h5>
+                                <h3>{{ attempt.score }} / {{ attempt.max_score }}</h3>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-{{ score_percentage|floatformat:0|divisibleby:10|yesno:'danger,warning,success' }}" role="progressbar" style="width: {{ score_percentage }}%;" aria-valuenow="{{ score_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <p class="small text-muted mt-2">{{ score_percentage|floatformat:0 }}% de réussite</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <h5>Réponses correctes</h5>
+                                <h3>{{ correct_answers }} / {{ total_questions }}</h3>
+                                <p class="small text-muted mt-2">{{ correct_answers|multiply:100|divide:total_questions|floatformat:0 }}% de bonnes réponses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                                <h5>Temps passé</h5>
+                                <h3>{{ attempt.time_spent|divide:60|floatformat:0 }} min</h3>
+                                <p class="small text-muted mt-2">{{ attempt.time_spent }} secondes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Détails de l'exercice</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Type d'exercice</span>
+                            <span class="badge bg-primary rounded-pill">{{ attempt.exercise.exercise_type.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Difficulté</span>
+                            <span class="badge bg-{{ attempt.exercise.difficulty|yesno:'success,primary,danger' }} rounded-pill">{{ attempt.exercise.get_difficulty_display }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Date de réalisation</span>
+                            <span>{{ attempt.completed_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Points gagnés</span>
+                            <span class="text-primary fw-bold">{{ attempt.score }} points</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy me-2 text-warning"></i>
+                    Récompenses gagnées
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if achievements %}
+                    <ul class="list-group list-group-flush">
+                        {% for achievement in achievements %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas {{ achievement.icon }} fa-2x text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ achievement.name }}</h6>
+                                    <p class="text-muted small mb-0">{{ achievement.description }}</p>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+                        <p>Pas de récompense gagnée pour cet exercice.</p>
+                        <p class="small text-muted">Continue à t'entraîner pour gagner des récompenses !</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>
+                    Exercices recommandés
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recommended_exercises %}
+                    <div class="list-group">
+                        {% for exercise in recommended_exercises %}
+                            <a href="{% url 'exercises:exercise_detail' exercise.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ exercise.title }}</h6>
+                                    <small class="text-muted">{{ exercise.estimated_time }} min</small>
+                                </div>
+                                <p class="mb-1 small">{{ exercise.exercise_type.name }}</p>
+                                <small class="text-muted">
+                                    <span class="badge bg-{{ exercise.difficulty|yesno:'success,primary,danger' }}">
+                                        {{ exercise.get_difficulty_display }}
+                                    </span>
+                                </small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <p>Pas d'exercices recommandés pour le moment.</p>
+                        <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary">
+                            Voir tous les exercices
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="fas fa-list-ol me-2 text-primary"></i>
+            Détail des questions
+        </h5>
+    </div>
+    <div class="card-body">
+        {% for response in attempt.responses.all %}
+            <div class="card mb-3 {% if response.is_correct %}border-success{% else %}border-danger{% endif %}">
+                <div class="card-header {% if response.is_correct %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            Question {{ forloop.counter }}
+                        </h6>
+                        <span>
+                            {% if response.is_correct %}
+                                <i class="fas fa-check-circle me-1"></i>Correct
+                            {% else %}
+                                <i class="fas fa-times-circle me-1"></i>Incorrect
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>{{ response.question.question_text|safe }}</p>
+                    
+                    {% if response.question.image %}
+                        <div class="text-center mb-3">
+                            <img src="{{ response.question.image.url }}" alt="Question image" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <h6>Ta réponse :</h6>
+                        {% if response.answer %}
+                            <p class="{% if response.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                {{ response.answer.answer_text }}
+                            </p>
+                        {% elif response.text_response %}
+                            <p class="{% if response.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                {{ response.text_response }}
+                            </p>
+                        {% else %}
+                            <p class="text-muted">Pas de réponse</p>
+                        {% endif %}
+                    </div>
+                    
+                    {% if not response.is_correct %}
+                        <div class="mt-3">
+                            <h6>Réponse correcte :</h6>
+                            <p class="text-success">
+                                {% for answer in response.question.answers.all %}
+                                    {% if answer.is_correct %}
+                                        {{ answer.answer_text }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if response.answer.feedback %}
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {{ response.answer.feedback }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary btn-lg">
+        <i class="fas fa-play-circle me-2"></i>Faire un autre exercice
+    </a>
+    <a href="{% url 'dashboard:dashboard' %}" class="btn btn-outline-secondary btn-lg ms-2">
+        <i class="fas fa-tachometer-alt me-2"></i>Retour au tableau de bord
+    </a>
+</div>
+{% endblock %} {% endcomment %}

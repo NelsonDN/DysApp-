@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Tableau de bord administrateur - App DYS{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="mb-0">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+            Tableau de bord administrateur
+        </h1>
+        <p class="lead text-muted">Gérez votre application et suivez les statistiques</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'admin:index' %}" class="btn btn-primary">
+            <i class="fas fa-cog me-2"></i>Administration Django
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h3>{{ total_users }}</h3>
+                <p class="mb-0">Utilisateurs</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-child fa-3x text-success mb-3"></i>
+                <h3>{{ total_children }}</h3>
+                <p class="mb-0">Enfants</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 mb-md-0">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-user-friends fa-3x text-info mb-3"></i>
+                <h3>{{ total_parents }}</h3>
+                <p class="mb-0">Parents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-chalkboard-teacher fa-3x text-warning mb-3"></i>
+                <h3>{{ total_teachers }}</h3>
+                <p class="mb-0">Enseignants</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    Statistiques des exercices
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="text-center">
+                            <i class="fas fa-book fa-2x text-primary mb-2"></i>
+                            <h4>{{ total_exercises }}</h4>
+                            <p class="mb-0">Exercices créés</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h4>{{ total_attempts }}</h4>
+                            <p class="mb-0">Tentatives complétées</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="text-center">
+                            <i class="fas fa-brain fa-2x text-danger mb-2"></i>
+                            <h4>{{ dyslexia_exercises }}</h4>
+                            <p class="mb-0">Exercices dyslexie</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <i class="fas fa-calculator fa-2x text-info mb-2"></i>
+                            <h4>{{ dyscalculia_exercises }}</h4>
+                            <p class="mb-0">Exercices dyscalculie</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2 text-success"></i>
+                    Actions rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'admin:accounts_user_changelist' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <span>Gérer les utilisateurs</span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'admin:exercises_exercise_changelist' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                            <i class="fas fa-tasks fa-2x mb-2"></i>
+                            <span>Gérer les exercices</span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'admin:progress_achievement_changelist' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                            <i class="fas fa-trophy fa-2x mb-2"></i>
+                            <span>Gérer les récompenses</span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'admin:accounts_childprofile_changelist' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                            <i class="fas fa-child fa-2x mb-2"></i>
+                            <span>Profils enfants</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-plus me-2 text-info"></i>
+                    Utilisateurs récemment inscrits
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Type</th>
+                                    <th>Date d'inscription</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                    <tr>
+                                        <td>
+                                            {{ user.get_full_name|default:user.username }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ user.user_type|yesno:'primary,success,info,secondary' }}">
+                                                {{ user.get_user_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'admin:accounts_user_change' user.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p>Aucun utilisateur récemment inscrit.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2 text-warning"></i>
+                    Tentatives récentes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Exercice</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in recent_attempts %}
+                                    <tr>
+                                        <td>{{ attempt.user.get_full_name|default:attempt.user.username }}</td>
+                                        <td>{{ attempt.exercise.title }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ attempt.score|divisibleby:20|yesno:'danger,warning,info,success,primary' }}">
+                                                {{ attempt.score }} / {{ attempt.max_score }}
+                                            </span>
+                                        </td>
+                                        <td>{{ attempt.completed_at|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <p>Aucune tentative récente.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

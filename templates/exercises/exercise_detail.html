@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ exercise.title }} - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exercises:exercise_list' %}">Exercices</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ exercise.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    {{ exercise.title }}
+                </h1>
+                <div>
+                    <span class="badge bg-{{ exercise.difficulty|yesno:'danger,primary,success' }} me-2">
+                        {{ exercise.get_difficulty_display }}
+                    </span>
+                    <span class="badge bg-secondary">
+                        <i class="far fa-clock me-1"></i> {{ exercise.estimated_time }} min
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h5 class="mb-3">Instructions</h5>
+                    <div class="exercise-instructions">
+                        {{ exercise.instructions|safe|linebreaks }}
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Type d'exercice</h5>
+                    <p>
+                        <span class="badge bg-info me-2">{{ exercise.exercise_type.name }}</span>
+                        {% if exercise.exercise_type.disorder_type == 'dyslexia' %}
+                            <span class="badge bg-warning">Dyslexie</span>
+                        {% elif exercise.exercise_type.disorder_type == 'dyscalculia' %}
+                            <span class="badge bg-danger">Dyscalculie</span>
+                        {% else %}
+                            <span class="badge bg-success">Dyslexie & Dyscalculie</span>
+                        {% endif %}
+                    </p>
+                    
+                    <h5 class="mt-4 mb-3">Informations</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Nombre de questions
+                            <span class="badge bg-primary rounded-pill">{{ questions_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Temps estimé
+                            <span class="badge bg-primary rounded-pill">{{ exercise.estimated_time }} minutes</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Difficulté
+                            <span class="badge bg-{{ exercise.difficulty|yesno:'danger,primary,success' }} rounded-pill">
+                                {{ exercise.get_difficulty_display }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title mb-4">Prêt à commencer ?</h5>
+                            
+                            {% if previous_attempts %}
+                                <div class="alert alert-info mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Vous avez déjà fait cet exercice {{ previous_attempts | length }} fois.
+                                </div>
+                            {% endif %}
+                            
+                            {% comment %} <a href="{% url 'exercises:start_exercise' exercise.id %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play-circle me-2"></i>
+                                Commencer l'exercice
+                            </a> {% endcomment %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-play-circle me-2"></i>
+                                    Commencer l'exercice
+                                </button>
+                            </form>
+                            
+                            {% if best_score %}
+                                <div class="mt-4">
+                                    <h6>Votre meilleur score</h6>
+                                    <div class="display-4 text-success">{{ best_score }}%</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if user_attempts %}
+                <h5 class="mb-3">Vos tentatives précédentes</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Temps passé</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in user_attempts %}
+                                <tr>
+                                    <td>{{ attempt.completed_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-{{ attempt.score|divisibleby:20|yesno:'danger,warning,info,success,primary' }}" 
+                                                role="progressbar" 
+                                                style="width: {{ attempt.score_percentage }}%;" 
+                                                aria-valuenow="{{ attempt.score_percentage }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                                {{ attempt.score }} / {{ attempt.max_score }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if attempt.completed_at and attempt.started_at %}
+                                            {{ attempt.completed_at|timeuntil:attempt.started_at }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'exercises:exercise_result' attempt.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>
+                                            Voir le résultat
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ajouter un événement de soumission au formulaire
+        const exerciseForm = document.querySelector('form');
+        if (exerciseForm) {
+            exerciseForm.addEventListener('submit', function(e) {
+                // Désactiver le bouton pour éviter les soumissions multiples
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Chargement...';
+            });
+        }
+    });
+</script>
+{% endblock %}

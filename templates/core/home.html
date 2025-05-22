@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block title %}DysApp - Apprendre avec plaisir{% endblock %}
+
+{% block content %}
+{% load static %}
+
+    <!-- Hero Section -->
+    <section class="hero-section py-5 text-center">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-lg-start">
+                    <h1 class="display-4 fw-bold mb-4">Apprendre avec plaisir malgré la dyslexie et la dyscalculie</h1>
+                    <p class="lead mb-4">DysApp est une application éducative conçue pour aider les enfants dyslexiques et dyscalculiques à développer leurs compétences tout en s'amusant.</p>
+                    {% if not request.user.is_authenticated %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 me-md-2">Se connecter</a>
+                            <a href="#features" class="btn btn-outline-secondary btn-lg px-4">En savoir plus</a>
+                        </div>
+                    {% else %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-primary btn-lg px-4 me-md-2">Mon tableau de bord</a>
+                            <a href="{% url 'exercises:exercise_list' %}" class="btn btn-success btn-lg px-4">Commencer les exercices</a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-6">
+                    <img src="{% static 'img/hero-image.png' %}" alt="Enfants apprenant avec DysApp" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="features-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Pourquoi choisir DysApp ?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                                <i class="fas fa-brain fa-2x"></i>
+                            </div>
+                            <h3 class="card-title h5">Adapté aux troubles DYS</h3>
+                            <p class="card-text">Exercices spécialement conçus pour les enfants dyslexiques et dyscalculiques, avec une approche multisensorielle.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
+                                <i class="fas fa-gamepad fa-2x"></i>
+                            </div>
+                            <h3 class="card-title h5">Apprentissage ludique</h3>
+                            <p class="card-text">Système de récompenses et de progression qui motive les enfants à continuer d'apprendre et à se dépasser.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon bg-info bg-gradient text-white rounded-circle mb-3">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                            <h3 class="card-title h5">Suivi des progrès</h3>
+                            <p class="card-text">Tableaux de bord détaillés pour les parents et enseignants afin de suivre les progrès et identifier les domaines à améliorer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Categories Section -->
+    <section class="categories-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Catégories d'exercices</h2>
+            <div class="row g-4">
+                {% for category in categories %}
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="category-icon me-3" style="background-color: {{ category.color }};">
+                                        <i class="fas {{ category.icon }} fa-lg text-white"></i>
+                                    </div>
+                                    <h3 class="card-title h5 mb-0">{{ category.name }}</h3>
+                                </div>
+                                <p class="card-text">{{ category.description }}</p>
+                                {% if request.user.is_authenticated %}
+                                    <a href="{% url 'exercises:exercise_list' %}?category={{ category.id }}" class="btn btn-outline-primary">Voir les exercices</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p>Aucune catégorie d'exercice disponible pour le moment.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="testimonials-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Ce que disent nos utilisateurs</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex mb-3">
+                                <div class="testimonial-avatar me-3">
+                                    <img src="{% static 'img/person.png' %}" alt="Avatar" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h3 class="card-title h5 mb-0">Sophie, maman de KAMGA</h3>
+                                    <div class="text-warning">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text">"DysApp a transformé l'apprentissage de mon fils dyslexique. Il est maintenant enthousiaste à l'idée de faire ses exercices et ses progrès sont remarquables."</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex mb-3">
+                                <div class="testimonial-avatar me-3">
+                                    <img src="{% static 'img/person.png' %}" alt="Avatar" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h3 class="card-title h5 mb-0">ATANGANA, enseignant spécialisé</h3>
+                                    <div class="text-warning">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text">"J'utilise DysApp avec mes élèves dyscalculiques et les résultats sont impressionnants. L'interface est intuitive et les exercices sont parfaitement adaptés à leurs besoins."</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex mb-3">
+                                <div class="testimonial-avatar me-3">
+                                    <img src="{% static 'img/person.png' %}" alt="Avatar" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h3 class="card-title h5 mb-0">Aminatou, 10 ans</h3>
+                                    <div class="text-warning">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text">"J'adore DysApp ! Les exercices sont amusants et je gagne des points pour acheter des récompenses. Maintenant, je n'ai plus peur des maths et de la lecture."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section py-5 bg-primary text-white text-center">
+        <div class="container">
+            <h2 class="mb-4">Prêt à commencer l'aventure ?</h2>
+            <p class="lead mb-4">Rejoignez des milliers d'enfants qui apprennent avec plaisir malgré leurs troubles DYS.</p>
+            {% if not request.user.is_authenticated %}
+                <a href="{% url 'login' %}" class="btn btn-light btn-lg px-4">Se connecter maintenant</a>
+            {% else %}
+                <a href="{% url 'exercises:exercise_list' %}" class="btn btn-light btn-lg px-4">Découvrir les exercices</a>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

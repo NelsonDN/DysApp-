@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Boutique de récompenses - App DYS{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-gift me-2 text-primary"></i>
+                Boutique de récompenses
+            </h1>
+            <p class="lead text-muted">Utilisez vos points pour obtenir des récompenses</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <div class="me-3">
+                    <span class="badge bg-primary p-2">
+                        <i class="fas fa-star me-1"></i> {{ user.child_profile.points }} points
+                    </span>
+                </div>
+                <a href="{% url 'progress:achievements' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-trophy me-2"></i>Mes récompenses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="rewardTypeTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
+                                Toutes les récompenses
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="avatars-tab" data-bs-toggle="tab" data-bs-target="#avatars" type="button" role="tab" aria-controls="avatars" aria-selected="false">
+                                Avatars
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="themes-tab" data-bs-toggle="tab" data-bs-target="#themes" type="button" role="tab" aria-controls="themes" aria-selected="false">
+                                Thèmes
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="games-tab" data-bs-toggle="tab" data-bs-target="#games" type="button" role="tab" aria-controls="games" aria-selected="false">
+                                Mini-jeux
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="rewardTypeTabContent">
+                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            <div class="row">
+                                <!-- Exemple de récompenses -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/avatar1.png' %}" class="card-img-top" alt="Avatar cosmonaute">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Avatar Cosmonaute</h5>
+                                            <p class="card-text">Un avatar spécial pour ton profil.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 100 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 100 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/theme1.png' %}" class="card-img-top" alt="Thème spatial">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Thème Spatial</h5>
+                                            <p class="card-text">Change l'apparence de l'application avec ce thème spatial.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 150 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 150 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/game1.png' %}" class="card-img-top" alt="Mini-jeu">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Mini-jeu: Aventure spatiale</h5>
+                                            <p class="card-text">Un mini-jeu amusant pour te détendre entre les exercices.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 200 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 200 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/avatar2.png' %}" class="card-img-top" alt="Avatar superhéros">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Avatar Superhéros</h5>
+                                            <p class="card-text">Un avatar de superhéros pour ton profil.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 100 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 100 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/theme2.png' %}" class="card-img-top" alt="Thème jungle">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Thème Jungle</h5>
+                                            <p class="card-text">Change l'apparence de l'application avec ce thème jungle.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 150 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 150 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/game2.png' %}" class="card-img-top" alt="Mini-jeu">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Mini-jeu: Chasse au trésor</h5>
+                                            <p class="card-text">Un mini-jeu de chasse au trésor pour te détendre.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 200 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 200 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="avatars" role="tabpanel" aria-labelledby="avatars-tab">
+                            <div class="row">
+                                <!-- Avatars -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/avatar1.png' %}" class="card-img-top" alt="Avatar cosmonaute">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Avatar Cosmonaute</h5>
+                                            <p class="card-text">Un avatar spécial pour ton profil.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 100 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 100 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/avatar2.png' %}" class="card-img-top" alt="Avatar superhéros">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Avatar Superhéros</h5>
+                                            <p class="card-text">Un avatar de superhéros pour ton profil.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 100 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 100 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="themes" role="tabpanel" aria-labelledby="themes-tab">
+                            <div class="row">
+                                <!-- Thèmes -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/theme1.png' %}" class="card-img-top" alt="Thème spatial">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Thème Spatial</h5>
+                                            <p class="card-text">Change l'apparence de l'application avec ce thème spatial.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 150 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 150 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/theme2.png' %}" class="card-img-top" alt="Thème jungle">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Thème Jungle</h5>
+                                            <p class="card-text">Change l'apparence de l'application avec ce thème jungle.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 150 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 150 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="games" role="tabpanel" aria-labelledby="games-tab">
+                            <div class="row">
+                                <!-- Mini-jeux -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/game1.png' %}" class="card-img-top" alt="Mini-jeu">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Mini-jeu: Aventure spatiale</h5>
+                                            <p class="card-text">Un mini-jeu amusant pour te détendre entre les exercices.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 200 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 200 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 reward-card">
+                                        <img src="{% static 'img/rewards/game2.png' %}" class="card-img-top" alt="Mini-jeu">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Mini-jeu: Chasse au trésor</h5>
+                                            <p class="card-text">Un mini-jeu de chasse au trésor pour te détendre.</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-star me-1"></i> 200 points
+                                                </span>
+                                                <button class="btn btn-sm btn-success" {% if user.child_profile.points < 200 %}disabled{% endif %}>
+                                                    <i class="fas fa-shopping-cart me-1"></i> Acheter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reward-card {
+        transition: all 0.3s ease;
+    }
+    
+    .reward-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .reward-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

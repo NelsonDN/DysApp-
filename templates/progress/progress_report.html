@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load score_filters %}
+
+{% block title %}Rapport de progression - App DYS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Rapport de progression
+            </h1>
+            <p class="lead text-muted">Suivez votre évolution et vos performances</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'progress:achievements' %}" class="btn btn-primary">
+                <i class="fas fa-trophy me-2"></i>Mes récompenses
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h3>{{ user_profile.points }}</h3>
+                    <p class="mb-0">Points totaux</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-trophy fa-3x text-success mb-3"></i>
+                    <h3>{{ user_profile.level }}</h3>
+                    <p class="mb-0">Niveau actuel</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4 mb-md-0">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-tasks fa-3x text-primary mb-3"></i>
+                    <h3>{{ total_exercises_completed }}</h3>
+                    <p class="mb-0">Exercices complétés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-medal fa-3x text-info mb-3"></i>
+                    <h3>{{ total_achievements }}</h3>
+                    <p class="mb-0">Récompenses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8 mb-4 mb-md-0">
+            <div class="card shadow h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>
+                        Progression par compétence
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if progress_records %}
+                        {% for record in progress_records %}
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">{{ record.exercise_type.name }}</h6>
+                                    <span class="badge bg-primary">Niveau {{ record.skill_level }}/10</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-{{ record.skill_level|divisibleby:2|yesno:'danger,warning,info,success,primary' }}" 
+                                        role="progressbar" 
+                                        style="width: {{ record.skill_level|multiply:10 }}%;" 
+                                        aria-valuenow="{{ record.skill_level }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="10">
+                                        {{ record.skill_level }}/10
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">{{ record.exercises_completed }} exercices complétés</small>
+                                    <small class="text-muted">Dernière mise à jour: {{ record.last_updated|date:"d/m/Y" }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                            <h4>Pas encore de données de progression</h4>
+                            <p class="text-muted">Complétez des exercices pour voir votre progression</p>
+                            <a href="{% url 'exercises:exercise_list' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-play-circle me-2"></i>Commencer un exercice
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2 text-success"></i>
+                        Répartition des exercices
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if total_exercises_completed > 0 %}
+                        <div class="chart-container" style="position: relative; height:250px;">
+                            <canvas id="exerciseTypeChart"></canvas>
+                        </div>
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div><i class="fas fa-circle text-primary me-2"></i> Dyslexie</div>
+                                <div>{{ dyslexia_exercises_count }} ({{ dyslexia_percentage }}%)</div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <div><i class="fas fa-circle text-success me-2"></i> Dyscalculie</div>
+                                <div>{{ dyscalculia_exercises_count }} ({{ dyscalculia_percentage }}%)</div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div><i class="fas fa-circle text-warning me-2"></i> Mixte</div>
+                                <div>{{ mixed_exercises_count }} ({{ mixed_percentage }}%)</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-pie fa-4x text-muted mb-3"></i>
+                            <p>Pas encore de données disponibles</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2 text-info"></i>
+                        Activité récente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_attempts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Exercice</th>
+                                        <th>Date</th>
+                                        <th>Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attempt in recent_attempts %}
+                                        <tr>
+                                            <td>{{ attempt.exercise.title }}</td>
+                                            <td>{{ attempt.completed_at|date:"d/m/Y" }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-{{ attempt.score|divisibleby:20|yesno:'danger,warning,info,success,primary' }}" 
+                                                        role="progressbar" 
+                                                        style="width: {{ attempt.score_percentage }}%;" 
+                                                        aria-valuenow="{{ attempt.score_percentage }}" 
+                                                        aria-valuemin="0" 
+                                                        aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <div class="text-center small mt-1">{{ attempt.score }}/{{ attempt.max_score }}</div>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'exercises:exercise_result' attempt.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p>Aucune activité récente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2 text-warning"></i>
+                        Dernières récompenses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_achievements %}
+                        <ul class="list-group list-group-flush">
+                            {% for achievement in recent_achievements %}
+                                <li class="list-group-item d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas {{ achievement.achievement.icon }} fa-2x text-warning"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ achievement.achievement.name }}</h6>
+                                        <p class="text-muted small mb-0">{{ achievement.achievement.description }}</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">+{{ achievement.achievement.points }} pts</span>
+                                        <div class="text-muted small">{{ achievement.date_earned|date:"d/m/Y" }}</div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'progress:achievements' %}" class="btn btn-outline-primary btn-sm">
+                                Voir toutes les récompenses
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+                            <p>Vous n'avez pas encore de récompenses</p>
+                            <p class="small text-muted">Complétez des exercices pour en gagner !</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if total_exercises_completed > 0 %}
+        var ctx = document.getElementById('exerciseTypeChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Dyslexie', 'Dyscalculie', 'Mixte'],
+                datasets: [{
+                    data: [{{ dyslexia_exercises_count }}, {{ dyscalculia_exercises_count }}, {{ mixed_exercises_count }}],
+                    backgroundColor: [
+                        'rgba(78, 84, 200, 0.8)',
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(78, 84, 200, 1)',
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}

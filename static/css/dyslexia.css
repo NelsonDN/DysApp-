@@ -1,0 +1,94 @@
+/* Dyslexia Mode Styles */
+.dyslexia-mode {
+    font-family: var(--font-family-dyslexic);
+    font-size: 1.05em;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+    word-spacing: 0.1em;
+    background-color: #f8f8d8;
+    color: #333;
+}
+
+.dyslexia-mode p {
+    margin-bottom: 1.5em;
+}
+
+.dyslexia-mode h1, 
+.dyslexia-mode h2, 
+.dyslexia-mode h3, 
+.dyslexia-mode h4, 
+.dyslexia-mode h5, 
+.dyslexia-mode h6 {
+    color: #2b5797;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+.dyslexia-mode a {
+    color: #9c27b0;
+    text-decoration: underline;
+}
+
+.dyslexia-mode a:hover {
+    color: #7b1fa2;
+}
+
+.dyslexia-mode .navbar {
+    background-color: #e6e6c8 !important;
+}
+
+.dyslexia-mode .card {
+    background-color: #fffff0;
+    border-color: #d8d8b8;
+}
+
+.dyslexia-mode .btn-primary {
+    background-color: #2b5797;
+    border-color: #2b5797;
+}
+
+.dyslexia-mode .btn-primary:hover {
+    background-color: #1e3c6a;
+    border-color: #1e3c6a;
+}
+
+.dyslexia-mode .btn-outline-primary {
+    color: #2b5797;
+    border-color: #2b5797;
+}
+
+.dyslexia-mode .btn-outline-primary:hover {
+    background-color: #2b5797;
+    color: #fff;
+}
+
+.dyslexia-mode .form-control {
+    background-color: #fffff0;
+    border-color: #d8d8b8;
+}
+
+.dyslexia-mode .form-control:focus {
+    background-color: #fffff0;
+    border-color: #2b5797;
+    box-shadow: 0 0 0 0.25rem rgba(43, 87, 151, 0.25);
+}
+
+.dyslexia-mode .table {
+    background-color: #fffff0;
+}
+
+.dyslexia-mode .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f8f8d8;
+}
+
+.dyslexia-mode .progress {
+    background-color: #d8d8b8;
+}
+
+.dyslexia-mode .progress-bar {
+    background-color: #2b5797;
+}
+
+.dyslexia-mode footer {
+    background-color: #e6e6c8 !important;
+}
