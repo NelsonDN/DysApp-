@@ -15,9 +15,6 @@ Une application web Django conçue pour aider les enfants atteints de dyslexie e
 
 ## Captures d'écran
 
-![Tableau de bord](static/img/screenshots/dashboard.png)
-![Exercice de dyslexie](static/img/screenshots/dyslexia_exercise.png)
-![Dash](static/img/screenshots/dyscalculia_exercise.png)
 ![Dash](static/img/screenshots/progress_report.png)
 
 ## Technologies utilisées
@@ -39,7 +36,7 @@ Une application web Django conçue pour aider les enfants atteints de dyslexie e
 
 1. Clonez le dépôt :
 \`\`\`bash
-git clone https://github.com/votre-organisation/dyslexia-dyscalculia-app.git
+git clone https://github.com/NelsonDN/DysApp-.git
 cd dyslexia-dyscalculia-app
 \`\`\`
 
