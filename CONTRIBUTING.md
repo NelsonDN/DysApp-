@@ -4,8 +4,8 @@ Merci de votre intérêt pour contribuer à notre application pour enfants dysle
 
 ## Prérequis
 
-- Python 3.8 ou supérieur
-- Django 4.0 ou supérieur
+- Python 3.10 ou supérieur
+- Django 5.0 ou supérieur
 - Git
 
 ## Installation pour le développement
@@ -13,32 +13,32 @@ Merci de votre intérêt pour contribuer à notre application pour enfants dysle
 1. Forkez le dépôt sur GitHub
 2. Clonez votre fork localement :
 \`\`\`bash
-git clone https://github.com/votre-nom/dyslexia-dyscalculia-app.git
-cd dyslexia-dyscalculia-app
+git clone https://github.com/NelsonDN/DysApp-.git
+cd dyslexia-projects
 \`\`\`
 
-3. Créez un environnement virtuel et activez-le :
+4. Créez un environnement virtuel et activez-le :
 \`\`\`bash
 python -m venv venv
 source venv/bin/activate  # Sur Windows : venv\Scripts\activate
 \`\`\`
 
-4. Installez les dépendances de développement :
+5. Installez les dépendances de développement :
 \`\`\`bash
 pip install -r requirements-dev.txt
 \`\`\`
 
-5. Appliquez les migrations :
+6. Appliquez les migrations :
 \`\`\`bash
 python manage.py migrate
 \`\`\`
 
-6. Créez un superutilisateur :
+7. Créez un superutilisateur :
 \`\`\`bash
 python manage.py createsuperuser
 \`\`\`
 
-7. Lancez le serveur de développement :
+8. Lancez le serveur de développement :
 \`\`\`bash
 python manage.py runserver
 \`\`\`
@@ -145,7 +145,7 @@ En contribuant à ce projet, vous acceptez que vos contributions soient sous la 
 ## Contact
 
 Si vous avez des questions ou besoin d'aide, n'hésitez pas à contacter l'équipe de développement à l'adresse email : nelsondada10@gmail.com
-\`\`\`
+
 
 ## 15. Fichiers de configuration principaux
 
