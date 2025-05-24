@@ -19,7 +19,7 @@ Une application web Django conçue pour aider les enfants atteints de dyslexie e
 
 ## Technologies utilisées
 
-- **Backend** : Django 4.0+, Python 3.8+
+- **Backend** : Django 5.0+, Python 3.10+
 - **Frontend** : HTML5, CSS3, JavaScript, Bootstrap 5
 - **Base de données** : PostgreSQL (production), SQLite (développement)
 - **Déploiement** : Docker, Gunicorn, Nginx
@@ -28,7 +28,7 @@ Une application web Django conçue pour aider les enfants atteints de dyslexie e
 
 ### Prérequis
 
-- Python 3.8 ou supérieur
+- Python 3.10 ou supérieur
 - pip (gestionnaire de paquets Python)
 - Virtualenv (recommandé)
 
